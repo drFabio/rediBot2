@@ -1,0 +1,171 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <xml id="toolbox" style="display: none">
+      <block type="controls_repeat_ext"></block>
+      <block type="controls_if"></block>
+      <block type="redi_var_tileOnFire"></block>
+
+      <block type="math_number"></block>
+      <block type="redi_var_tileAhead"></block>
+      <block type="redi_var_waterSupply"></block>
+      <block type="redi_moveForward"></block>
+      <block type="redi_extinguishFire"></block>
+      <block type="logic_compare">
+        <field name="OP">EQ</field>
+      </block>
+      <block type="controls_whileUntil">
+        <field name="MODE">WHILE</field>
+      </block>
+      <block type="logic_negate"></block>
+      <!--
+    <block type="logic_compare"></block>
+    <block type="math_number"></block>
+    <block type="math_arithmetic"></block>
+    <block type="text"></block>
+    <block type="text_print"></block> -->
+    </xml>
+  </head>
+
+  <body>
+    <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+    <textarea name="" id="output" cols="30" rows="10"></textarea>
+    <button onclick="runCurrentCode()">Run</button>
+    <script src="./blockly/blockly_compressed.js"></script>
+    <script src="./blockly/javascript_compressed.js"></script>
+
+    <script src="./blockly/blocks_compressed.js"></script>
+    <script src="./blockly/msg/js/en.js"></script>
+    <script>
+      let currentCode = null;
+      function runCurrentCode() {
+        let waterSupply = 2;
+        let currentTile = 0;
+        const log = cmd => {
+          console.log({ cmd, waterSupply, currentTile });
+        };
+        log("runCurrentCode");
+        const moveForward = () => {
+          currentTile++;
+          log("moveForward");
+        };
+        const extinguishFire = () => {
+          waterSupply--;
+          log("extinguishFire");
+        };
+        console.log(`current code`, currentCode);
+        eval(currentCode);
+      }
+      Blockly.Blocks["redi_var_tileOnFire"] = {
+        init: function() {
+          this.jsonInit({
+            type: "redi_var_tileOnFire",
+            message0: "tileOnFire",
+            output: "Boolean",
+            colour: 230,
+            tooltip: "Whether or not the tile is on fire",
+            helpUrl: ""
+          });
+        }
+      };
+      Blockly.JavaScript["redi_var_tileOnFire"] = function(block) {
+        // TODO: Assemble JavaScript into code variable.
+        var code = `tileOnFire`; // JSON.stringify(block);
+        // TODO: Change ORDER_NONE to the correct strength.
+        return [code, Blockly.JavaScript.ORDER_NONE];
+      };
+      Blockly.Blocks["redi_moveForward"] = {
+        init: function() {
+          this.jsonInit({
+            type: "block_type",
+            message0: "move forward",
+            previousStatement: null,
+            nextStatement: null,
+            colour: 230,
+            tooltip: "",
+            helpUrl: ""
+          });
+        }
+      };
+      Blockly.JavaScript["redi_moveForward"] = function(block) {
+        return "moveForward();\n";
+      };
+      Blockly.Blocks["redi_extinguishFire"] = {
+        init: function() {
+          this.appendDummyInput().appendField("Extinguish fire");
+          this.setPreviousStatement(true, null);
+          this.setNextStatement(true, null);
+          this.setColour(230);
+          this.setTooltip(
+            "Make the rediBot extinguish a fire if there is water available, decrease water"
+          );
+          this.setHelpUrl("");
+        }
+      };
+      Blockly.JavaScript["redi_extinguishFire"] = function(block) {
+        return "extinguishFire();\n";
+      };
+      Blockly.Blocks["redi_var_tileAhead"] = {
+        init: function() {
+          this.jsonInit({
+            type: "redi_var_tileAhead",
+            message0: "tileAhead",
+            output: "Boolean",
+            colour: 230,
+            tooltip: "Whether or not there is a tile ahead",
+            helpUrl: ""
+          });
+        }
+      };
+      Blockly.JavaScript["redi_var_tileAhead"] = function(block) {
+        // TODO: Assemble JavaScript into code variable.
+        var code = "tileAhead";
+        // TODO: Change ORDER_NONE to the correct strength.
+        return [code, Blockly.JavaScript.ORDER_NONE];
+      };
+      Blockly.Blocks["redi_var_waterSupply"] = {
+        init: function() {
+          this.jsonInit({
+            type: "redi_var_watersupply",
+            message0: "waterSupply",
+            output: "Number",
+            colour: 230,
+            tooltip: "Volume of water remaining",
+            helpUrl: ""
+          });
+        }
+      };
+      Blockly.JavaScript["redi_var_waterSupply"] = function(block) {
+        // TODO: Assemble JavaScript into code variable.
+        var code = "waterSupply";
+        // TODO: Change ORDER_NONE to the correct strength.
+        return [code, Blockly.JavaScript.ORDER_NONE];
+      };
+      const workspace = Blockly.inject("blocklyDiv", {
+        toolbox: document.getElementById("toolbox")
+      });
+      function myUpdateFunction(event) {
+        console.log(event);
+        if (!event.recordUndo) {
+          return false;
+        }
+        if (event.type == "move" || event.type == "delete") {
+          try {
+            currentCode = Blockly.JavaScript.workspaceToCode(workspace);
+            document.getElementById("output").value = currentCode;
+          } catch (e) {
+            console.error(e);
+            console.error(
+              "HEY LISTEN!!! We couldn't converr your code, we are ignoring it but if that was unintentional you should check it out "
+            );
+            console.log("the data was ", event);
+          }
+        }
+      }
+      workspace.addChangeListener(myUpdateFunction);
+    </script>
+  </body>
+</html>
