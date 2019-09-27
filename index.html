@@ -33,6 +33,12 @@
 
   <body>
     <div id="wrapper">
+      <nav id="header">
+        <a href="">Home</a>
+      </nav>
+      <div id="blocklyArea">
+        <div id="blocklyDiv"></div>
+      </div>
       <div id="visualContainer">
         <svg
           viewBox="0 0 500 500"
@@ -55,7 +61,6 @@
         </svg>
       </div>
     </div>
-    <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
     <textarea name="" id="output" cols="30" rows="10"></textarea>
     <button id="runButton">Run</button>
     <script src="./blockly/blockly_compressed.js"></script>
@@ -65,6 +70,7 @@
     <script src="./JS-Interpreter/acorn_interpreter.js"></script>
     <script src="./DisplayManager.js"></script>
     <script src="./BotManager.js"></script>
+    <script src="./BlocklyManager.js"></script>
 
     <script>
       window.addEventListener("load", function() {
@@ -155,28 +161,8 @@
           // TODO: Change ORDER_NONE to the correct strength.
           return [code, Blockly.JavaScript.ORDER_NONE];
         };
-        const workspace = Blockly.inject("blocklyDiv", {
-          toolbox: document.getElementById("toolbox")
-        });
-        function onWorspaceUpdate(event) {
-          console.log(event);
-          if (!event.recordUndo) {
-            return false;
-          }
-          if (event.type == "move" || event.type == "delete") {
-            try {
-              currentCode = Blockly.JavaScript.workspaceToCode(workspace);
-              document.getElementById("output").value = currentCode;
-            } catch (e) {
-              console.error(e);
-              console.error(
-                "HEY LISTEN!!! We couldn't convert your code, we are ignoring it but if that was unintentional you should check it out "
-              );
-              console.log("the data was ", event);
-            }
-          }
-        }
-        const botManager = new BotManager(workspace);
+        const blocklyManager = new BlocklyManager();
+        const botManager = new BotManager(blocklyManager.getWorkspace());
         console.log("All assets are loaded");
       });
     </script>
