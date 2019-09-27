@@ -1,11 +1,18 @@
 function BotManager(workspace) {
   const initialWaterSupply = 2;
+  const stepTimer = 400;
   let currentCode = "";
   let outputContainer = null;
   let displayManager = null;
   let runButton = null;
-  function runCode() {
+  function onStartIntepreting() {
     runButton.disabled = true;
+  }
+  function onStopIntepreting() {
+    runButton.disabled = false;
+  }
+  function runCode() {
+    onStartIntepreting();
     let waterSupply = initialWaterSupply;
     let currentTile = 0;
     console.log("runCurrentCode");
@@ -20,9 +27,32 @@ function BotManager(workspace) {
       console.log("extinguishFire");
       console.log({ currentTile, waterSupply });
     };
-    console.log(`current code`, currentCode);
-    eval(currentCode);
-    runButton.disabled = false;
+    const initIntepreter = (interpreter, scope) => {
+      interpreter.setProperty(scope, "waterSupply", waterSupply);
+      interpreter.setProperty(scope, "currentTile", currentTile);
+      interpreter.setProperty(
+        scope,
+        "moveForward",
+        interpreter.createNativeFunction(moveForward)
+      );
+      interpreter.setProperty(
+        scope,
+        "extinguishFire",
+        interpreter.createNativeFunction(extinguishFire)
+      );
+    };
+    const jsInterpreter = new Interpreter(currentCode, initIntepreter);
+    const nextStep = () => {
+      if (jsInterpreter.step()) {
+        jsInterpreter.step();
+        window.setTimeout(() => {
+          if (nextStep() === false) {
+            onStopIntepreting();
+          }
+        }, stepTimer);
+      }
+    };
+    nextStep();
   }
   function onWorspaceUpdate(event) {
     console.log(event);
