@@ -7,7 +7,7 @@ function BlocklyManager() {
     workspace = Blockly.inject(blocklyDiv, {
       toolbox: document.querySelector("#toolbox")
     });
-    const onresize = function(e) {
+    const onresize = function (e) {
       blocklyDiv.style.left = "0px";
       blocklyDiv.style.top = "0px";
       blocklyDiv.style.width = blocklyArea.offsetWidth + "px";
@@ -17,6 +17,8 @@ function BlocklyManager() {
     window.addEventListener("resize", onresize, false);
     onresize();
     Blockly.svgResize(workspace);
+    Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
+    Blockly.JavaScript.addReservedWords('highlightBlock');
   }
   this.getWorkspace = () => {
     return workspace;

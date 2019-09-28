@@ -1,6 +1,6 @@
 function BotManager(workspace) {
   const initialWaterSupply = 2;
-  const stepTimer = 400;
+  const stepTimer = 200;
   let currentCode = "";
   let outputContainer = null;
   let displayManager = null;
@@ -27,6 +27,9 @@ function BotManager(workspace) {
       console.log("extinguishFire");
       console.log({ currentTile, waterSupply });
     };
+    const highlightBlock = (id) => {
+      workspace.highlightBlock(id);
+    }
     const initIntepreter = (interpreter, scope) => {
       interpreter.setProperty(scope, "waterSupply", waterSupply);
       interpreter.setProperty(scope, "currentTile", currentTile);
@@ -40,17 +43,27 @@ function BotManager(workspace) {
         "extinguishFire",
         interpreter.createNativeFunction(extinguishFire)
       );
+      interpreter.setProperty(
+        scope,
+        "highlightBlock",
+        interpreter.createNativeFunction(highlightBlock)
+      );
     };
+
     const jsInterpreter = new Interpreter(currentCode, initIntepreter);
+    let stepCount = -1;
     const nextStep = () => {
-      if (jsInterpreter.step()) {
-        jsInterpreter.step();
-        window.setTimeout(() => {
-          if (nextStep() === false) {
-            onStopIntepreting();
-          }
-        }, stepTimer);
+      stepCount++;
+      const lastOne = jsInterpreter.step() === false;
+      if (lastOne) {
+        onStopIntepreting();
+        return
       }
+      if (stepCount % 2 === 0) {
+        nextStep()
+        return
+      }
+      window.setTimeout(nextStep, stepTimer);
     };
     nextStep();
   }
