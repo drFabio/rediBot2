@@ -90,9 +90,6 @@ function BotManager(workspace) {
   }
   function init() {
     displayManager = new DisplayManager({
-      containerSelector: "#visualContainer",
-      templatesSelector: ".svgTemplates",
-      levelSelector: "#levelSelector",
       levelIndex: currentLevelIndex
     });
     runButton = document.querySelector("#runButton");

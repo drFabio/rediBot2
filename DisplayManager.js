@@ -1,8 +1,8 @@
 function DisplayManager({
-  containerSelector,
-  templatesSelector,
-  levelSelector,
-  levelIndex
+  containerSelector = "#visualContainer",
+  templatesSelector = ".svgTemplates",
+  levelSelector = "#levelSelector",
+  levelIndex = 0
 }) {
   let container;
   let templateContainer;
@@ -28,7 +28,14 @@ function DisplayManager({
       display.appendChild(newRect);
     }
   }
-
+  function showGameDisplay() {
+    rulesContainer.style.display = "none";
+    display.style.display = "block";
+  }
+  function showGameRules() {
+    rulesContainer.style.display = "block";
+    display.style.display = "none";
+  }
   function setBot() {
     rediBot = templateContainer
       .querySelector('[data-context="rediBot"]')
@@ -77,6 +84,7 @@ function DisplayManager({
     target.classList.add("current");
     currentLevel = levelInfo[index];
     setupDescription();
+    showGameRules();
   }
   function setupLevelMenu() {
     const numLevels = levelInfo.length;
@@ -112,8 +120,10 @@ function DisplayManager({
     positionBot(newPosition);
   };
   this.runLevel = () => {
-    rulesContainer.style.display = "none";
-    display.style.display = "block";
+    const oldDisplay = display;
+    display = initialDisplay.cloneNode(true);
+    oldDisplay.parentNode.replaceChild(display, oldDisplay);
+    showGameDisplay();
     setupLevel();
   };
 }
