@@ -9,7 +9,6 @@ function BotManager(workspace) {
   let displayManager = null;
   let runButton = null;
   let currentLevelIndex = 0;
-  let currentRunData = null;
   const MAX_TILES = 20;
   const MIN_TILES = 3;
   const MAX_FIRES = 2;
@@ -17,8 +16,8 @@ function BotManager(workspace) {
   function randomInRange(max, min) {
     return Math.random() * (max - min) + min;
   }
-  function onStartIntepreting() {
-    currentRunData = {};
+  function getRunData() {
+    const currentRunData = {};
     const currentLevel = levelInfo[currentLevelIndex];
     if (currentLevel.dynamicTiles) {
       currentRunData.numberOfTiles = randomInRange(MAX_TILES, MIN_TILES);
@@ -26,51 +25,81 @@ function BotManager(workspace) {
       currentRunData.numberOfTiles = currentLevel.numberOfTiles;
     }
     if (currentLevel.dynamicFires) {
-      const positionMap = {};
+      const fireMap = {};
       currentRunData.fires = [];
 
       for (let i = 0; i < MAX_FIRES; i++) {
         let newPosition = randomInRange(currentRunData.numberOfTiles, 0);
-        while (positionMap[newPosition] === true) {
+        while (fireMap[newPosition] === true) {
           newPosition = randomInRange(currentRunData.numberOfTiles, 0);
         }
-        positionMap[newPosition] = true;
-        currentRunData.fires.push({ position: newPosition });
+        fireMap[newPosition] = true;
+        currentRunData.fires.push(newPosition);
       }
     } else {
-      currentRunData.fires = currentLevel.fires || [];
+      currentRunData.fires = (currentLevel.fires || []).map(
+        ({ position }) => position - 1
+      );
     }
+    currentRunData.fires.sort();
+    currentRunData.currentPosition = 0;
+    currentRunData.waterSupply = initialWaterSupply;
+    return currentRunData;
+  }
+  function onStartIntepreting(currentRunData) {
     runButton.disabled = true;
     displayManager.runLevel(currentRunData);
   }
-  function onStopIntepreting() {
+  function onStopIntepreting(finalRunData) {
+    console.log({ finalRunData });
     runButton.disabled = false;
   }
   function onLevelSelected(newLevelIndex) {
     currentLevelIndex = newLevelIndex;
   }
   function runCode() {
-    onStartIntepreting();
-    let waterSupply = initialWaterSupply;
-    let currentTile = 0;
-    console.log("runCurrentCode");
-    const moveForward = () => {
-      currentTile++;
-      displayManager.moveBot(currentTile);
-      console.log("moveForward");
-      console.log({ currentTile, waterSupply });
-    };
-    const extinguishFire = () => {
-      waterSupply--;
-      console.log("extinguishFire");
-      console.log({ currentTile, waterSupply });
-    };
-    const highlightBlock = id => {
-      workspace.highlightBlock(id);
-    };
-    const initIntepreter = (interpreter, scope) => {
+    const runData = getRunData();
+    onStartIntepreting(runData);
+    let { waterSupply, fires, currentPosition, numberOfTiles } = runData;
+    let tileOnFire = fires[0] === currentPosition;
+    if (tileOnFire) {
+      fires.shift();
+    }
+    let tileAhead = currentPosition + 1 < numberOfTiles;
+
+    function initIntepreter(interpreter, scope) {
+      function moveForward() {
+        currentPosition++;
+        console.log("moveForward", { tileAhead }, this);
+
+        tileAhead = currentPosition + 1 < numberOfTiles;
+        tileOnFire = fires[0] === currentPosition;
+        if (tileOnFire) {
+          fires.shift();
+        }
+        displayManager.moveBot(currentPosition);
+        console.log({ currentPosition, waterSupply });
+        // if we don't pass this to the intepreter back the value will not be evaluated
+        interpreter.setProperty(scope, "tileAhead", tileAhead);
+        interpreter.setProperty(scope, "tileOnFire", tileOnFire);
+      }
+      function extinguishFire() {
+        if (waterSupply <= 0) {
+          return;
+        }
+        waterSupply--;
+        console.log("extinguishFire");
+        interpreter.setProperty(scope, "waterSupply", waterSupply);
+        interpreter.setProperty(scope, "tileOnFire", false);
+        console.log({ currentPosition, waterSupply });
+      }
+      function highlightBlock(id) {
+        workspace.highlightBlock(id);
+      }
       interpreter.setProperty(scope, "waterSupply", waterSupply);
-      interpreter.setProperty(scope, "currentTile", currentTile);
+      interpreter.setProperty(scope, "tileAhead", tileAhead);
+      interpreter.setProperty(scope, "tileOnFire", tileOnFire);
+
       interpreter.setProperty(
         scope,
         "moveForward",
@@ -86,7 +115,8 @@ function BotManager(workspace) {
         "highlightBlock",
         interpreter.createNativeFunction(highlightBlock)
       );
-    };
+      console.log({ tileAhead });
+    }
 
     const jsInterpreter = new Interpreter(currentCode, initIntepreter);
     let stepCount = -1;
@@ -94,7 +124,12 @@ function BotManager(workspace) {
       stepCount++;
       const lastOne = jsInterpreter.step() === false;
       if (lastOne) {
-        onStopIntepreting();
+        onStopIntepreting({
+          waterSupply,
+          fires,
+          currentPosition,
+          numberOfTiles
+        });
         return;
       }
       if (stepCount % 2 === 0) {

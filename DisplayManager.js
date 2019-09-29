@@ -50,7 +50,7 @@ function DisplayManager({
     positionBot();
     rediBot.style.visibility = "visible";
   }
-  function initFlame(fires) {
+  function initFlameTemplate() {
     flameTemplate = templateContainer
       .querySelector('[data-context="flame"]')
       .cloneNode(true);
@@ -59,9 +59,6 @@ function DisplayManager({
     flameDimensions = flameTemplate.getBBox();
     display.removeChild(flameTemplate);
     flameTemplate.style.visibility = "visible";
-    fires.forEach(({ position }) => {
-      addFlame(position - 1);
-    });
   }
   function positionBot(zeroIndexedPosition = 0) {
     rediBot.setAttribute("x", (boxSize - botDimensions.width) / 2);
@@ -78,10 +75,10 @@ function DisplayManager({
     flame.setAttribute("y", y);
     display.appendChild(flame);
   }
-  function setupLevel(runData) {
-    setupBoxes(runData.numberOfTiles);
+  function setupLevel({ numberOfTiles = 4, fires = [] }) {
+    setupBoxes(numberOfTiles);
     setBot();
-    initFlame(runData.fires || []);
+    fires.forEach(addFlame);
   }
   function onLevelSelect(index) {
     const target = levelMenuContainer.querySelector(`[data-index="${index}"]`);
@@ -95,7 +92,7 @@ function DisplayManager({
     setupDescription();
     showGameRules();
   }
-  function setupLevelMenu() {
+  function initLevelMenu() {
     const numLevels = levelInfo.length;
     for (let i = 0; i < numLevels; i++) {
       const li = document.createElement("li");
@@ -120,7 +117,8 @@ function DisplayManager({
     initialDisplay = display.cloneNode(true);
     rectTemplate = templateContainer.querySelector("rect");
     boxSize = parseInt(rectTemplate.getAttribute("width"), 10);
-    setupLevelMenu();
+    initLevelMenu();
+    initFlameTemplate();
   }
   this.moveBot = newPosition => {
     positionBot(newPosition);
