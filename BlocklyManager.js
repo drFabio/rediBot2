@@ -5,7 +5,8 @@ function BlocklyManager() {
     const blocklyArea = document.querySelector("#blocklyArea");
     const blocklyDiv = document.querySelector("#blocklyDiv");
     workspace = Blockly.inject(blocklyDiv, {
-      toolbox: document.querySelector("#toolbox")
+      toolbox: document.querySelector("#toolbox"),
+      trashcan: true
     });
     const onresize = function (e) {
       blocklyDiv.style.left = "0px";
