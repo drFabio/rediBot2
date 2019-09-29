@@ -12,7 +12,23 @@ function BotManager(workspace) {
   const MAX_TILES = 20;
   const MIN_TILES = 3;
   const MAX_FIRES = 2;
-  const initialWaterSupply = MAX_FIRES;
+  const INITIAL_WATER_SUPPLY = MAX_FIRES;
+  function ExtinguishWithoutWaterError() {
+    this.message = "Tried to extinguish a flame without water";
+  }
+  ExtinguishWithoutWaterError.prototype = Error.prototype;
+  ExtinguishWithoutWaterError.prototype.code = "NO_WATER";
+  function ExtinguishNoFlameError() {
+    this.message = "Tried to extinguish a place that did not have a flame";
+  }
+  ExtinguishNoFlameError.prototype = Error.prototype;
+  ExtinguishNoFlameError.prototype.code = "NO_FLAME";
+  function WalkedOutsideOfTheBoundariesError() {
+    this.message = "You walked outside of the path";
+  }
+  WalkedOutsideOfTheBoundariesError.prototype = Error.prototype;
+  WalkedOutsideOfTheBoundariesError.prototype.code = "OUTSIDE_OF_PATH";
+
   function randomInRange(max, min) {
     return Math.floor(Math.random() * (max - min) + min);
   }
@@ -43,16 +59,18 @@ function BotManager(workspace) {
     }
     currentRunData.fires.sort();
     currentRunData.currentPosition = 0;
-    currentRunData.waterSupply = initialWaterSupply;
+    currentRunData.waterSupply = INITIAL_WATER_SUPPLY;
     return currentRunData;
   }
   function onStartIntepreting(currentRunData) {
     runButton.disabled = true;
     displayManager.runLevel(currentRunData);
   }
-  function onStopIntepreting(finalRunData) {
-    console.log({ finalRunData });
+  function onStopIntepreting({ fires, currentPosition, numberOfTiles }) {
     runButton.disabled = false;
+    if (currentPosition === numberOfTiles - 1 && fires.length === 0) {
+      alert("You passed this level");
+    }
   }
   function onLevelSelected(newLevelIndex) {
     currentLevelIndex = newLevelIndex;
@@ -66,12 +84,16 @@ function BotManager(workspace) {
       fires.shift();
     }
     let tileAhead = currentPosition + 1 < numberOfTiles;
-
+    let runTimeException = null;
     function initIntepreter(interpreter, scope) {
       function moveForward() {
+        console.log(Object.keys(interpreter));
         currentPosition++;
         console.log("moveForward", { tileAhead }, this);
-
+        if (!tileAhead) {
+          runTimeException = new WalkedOutsideOfTheBoundariesError();
+          return;
+        }
         tileAhead = currentPosition + 1 < numberOfTiles;
         tileOnFire = fires[0] === currentPosition;
         if (tileOnFire) {
@@ -85,6 +107,11 @@ function BotManager(workspace) {
       }
       function extinguishFire() {
         if (waterSupply <= 0) {
+          runTimeException = new ExtinguishWithoutWaterError();
+          return;
+        }
+        if (!tileOnFire) {
+          runTimeException = new ExtinguishNoFlameError();
           return;
         }
         waterSupply--;
@@ -116,30 +143,37 @@ function BotManager(workspace) {
         "highlightBlock",
         interpreter.createNativeFunction(highlightBlock)
       );
-      console.log({ tileAhead });
     }
 
-    const jsInterpreter = new Interpreter(currentCode, initIntepreter);
-    let stepCount = -1;
-    const nextStep = () => {
-      stepCount++;
-      const lastOne = jsInterpreter.step() === false;
-      if (lastOne) {
-        onStopIntepreting({
-          waterSupply,
-          fires,
-          currentPosition,
-          numberOfTiles
-        });
-        return;
-      }
-      if (stepCount % 2 === 0) {
-        nextStep();
-        return;
-      }
-      window.setTimeout(nextStep, stepTimer);
-    };
-    nextStep();
+    try {
+      const jsInterpreter = new Interpreter(currentCode, initIntepreter);
+      let stepCount = -1;
+      const nextStep = () => {
+        if (runTimeException) {
+          alert(runTimeException.message);
+          return;
+        }
+        stepCount++;
+        const lastOne = jsInterpreter.step() === false;
+        if (lastOne) {
+          onStopIntepreting({
+            waterSupply,
+            fires,
+            currentPosition,
+            numberOfTiles
+          });
+          return;
+        }
+        if (stepCount % 2 === 0) {
+          nextStep();
+          return;
+        }
+        window.setTimeout(nextStep, stepTimer);
+      };
+      nextStep();
+    } catch (err) {
+      alert(err.message);
+    }
   }
   function onWorspaceUpdate(event) {
     console.log(event);
