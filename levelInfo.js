@@ -23,13 +23,13 @@ const levelInfo = [
   {
     description:
       "Reach the last tile. Extinguish the fires wherever you find them. ",
-    dynamicBlocks: true,
+    dynamicTiles: true,
     dynamicFires: true
   },
   {
     description:
       "Reach the last tile. Extinguish the fires wherever you find them. Stop moving forward when RediBot runs out of water.",
-    dynamicBlocks: true,
+    dynamicTiles: true,
     dynamicFires: true,
     maxFires: false
   }

@@ -26,6 +26,7 @@
 }
 #header {
   grid-area: header;
+  padding: 0.5rem 2rem;
 }
 #levelSelector {
   width: 100%;

@@ -1,7 +1,12 @@
+/**
+ * Class that handles visual initialization
+ * @param {*} param0
+ */
 function DisplayManager({
   containerSelector = "#visualContainer",
   templatesSelector = ".svgTemplates",
   levelSelector = "#levelSelector",
+  onLevelSelected = null,
   levelIndex = 0
 }) {
   let container;
@@ -18,8 +23,7 @@ function DisplayManager({
   let rulesContainer;
   let initialDisplay;
   init();
-  function setupBoxes() {
-    const numOfBoxes = 4;
+  function setupBoxes(numOfBoxes) {
     const y = parseInt(rectTemplate.getAttribute("y"), 10);
     for (let i = 0; i < numOfBoxes; i++) {
       const newRect = rectTemplate.cloneNode(true);
@@ -46,7 +50,7 @@ function DisplayManager({
     positionBot();
     rediBot.style.visibility = "visible";
   }
-  function initFlame() {
+  function initFlame(fires) {
     flameTemplate = templateContainer
       .querySelector('[data-context="flame"]')
       .cloneNode(true);
@@ -55,12 +59,15 @@ function DisplayManager({
     flameDimensions = flameTemplate.getBBox();
     display.removeChild(flameTemplate);
     flameTemplate.style.visibility = "visible";
+    fires.forEach(({ position }) => {
+      addFlame(position - 1);
+    });
   }
-  function positionBot(position = 0) {
+  function positionBot(zeroIndexedPosition = 0) {
     rediBot.setAttribute("x", (boxSize - botDimensions.width) / 2);
     rediBot.setAttribute(
       "y",
-      position * boxSize + (boxSize - botDimensions.height) / 2
+      zeroIndexedPosition * boxSize + (boxSize - botDimensions.height) / 2
     );
   }
   function addFlame(position) {
@@ -71,18 +78,20 @@ function DisplayManager({
     flame.setAttribute("y", y);
     display.appendChild(flame);
   }
-  function setupLevel() {
-    setupBoxes();
+  function setupLevel(runData) {
+    setupBoxes(runData.numberOfTiles);
     setBot();
-    initFlame();
-    addFlame(1);
+    initFlame(runData.fires || []);
   }
-  function onLevelSelect({ target }, index) {
+  function onLevelSelect(index) {
+    const target = levelMenuContainer.querySelector(`[data-index="${index}"]`);
     levelMenuContainer.querySelectorAll(".current").forEach(el => {
       el.classList.remove("current");
     });
     target.classList.add("current");
     currentLevel = levelInfo[index];
+    document.title = `Redibot Level ${index + 1} `;
+    onLevelSelected(index);
     setupDescription();
     showGameRules();
   }
@@ -92,13 +101,11 @@ function DisplayManager({
       const li = document.createElement("li");
       li.classList.add("levelItem");
       li.setAttribute("data-index", i);
-      if (i === levelIndex) {
-        li.classList.add("current");
-      }
-      li.addEventListener("click", e => onLevelSelect(e, i));
+      li.addEventListener("click", e => onLevelSelect(i));
       li.innerHTML = i + 1;
       levelMenuContainer.appendChild(li);
     }
+    onLevelSelect(levelIndex);
   }
   function setupDescription() {
     document.querySelector("#levelDescription").innerHTML =
@@ -114,16 +121,15 @@ function DisplayManager({
     rectTemplate = templateContainer.querySelector("rect");
     boxSize = parseInt(rectTemplate.getAttribute("width"), 10);
     setupLevelMenu();
-    setupDescription();
   }
   this.moveBot = newPosition => {
     positionBot(newPosition);
   };
-  this.runLevel = () => {
+  this.runLevel = currentRunData => {
     const oldDisplay = display;
     display = initialDisplay.cloneNode(true);
     oldDisplay.parentNode.replaceChild(display, oldDisplay);
     showGameDisplay();
-    setupLevel();
+    setupLevel(currentRunData);
   };
 }

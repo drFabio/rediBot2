@@ -34,7 +34,9 @@
   <body>
     <div id="wrapper">
       <nav id="header">
-        <a href="">Home</a>
+        <a href="https://www.redi-school.org/redimunich" target="_blank"
+          ><img src="./rediLogo.webp" alt="Redi school logo"
+        /></a>
       </nav>
       <ul id="levelSelector"></ul>
       <div id="blocklyArea">
@@ -95,9 +97,7 @@
           }
         };
         Blockly.JavaScript["redi_var_tileOnFire"] = function(block) {
-          // TODO: Assemble JavaScript into code variable.
-          var code = `tileOnFire`; // JSON.stringify(block);
-          // TODO: Change ORDER_NONE to the correct strength.
+          const code = `tileOnFire`;
           return [code, Blockly.JavaScript.ORDER_NONE];
         };
         Blockly.Blocks["redi_moveForward"] = {

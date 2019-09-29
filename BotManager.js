@@ -1,19 +1,55 @@
+/**
+ * Class that handles the "business logic"  of the bot and levels
+ * @param {*} workspace
+ */
 function BotManager(workspace) {
-  const initialWaterSupply = 2;
   const stepTimer = 200;
   let currentCode = "";
   let outputContainer = null;
   let displayManager = null;
   let runButton = null;
   let currentLevelIndex = 0;
+  let currentRunData = null;
+  const MAX_TILES = 20;
+  const MIN_TILES = 3;
+  const MAX_FIRES = 2;
+  const initialWaterSupply = MAX_FIRES;
+  function randomInRange(max, min) {
+    return Math.random() * (max - min) + min;
+  }
   function onStartIntepreting() {
+    currentRunData = {};
+    const currentLevel = levelInfo[currentLevelIndex];
+    if (currentLevel.dynamicTiles) {
+      currentRunData.numberOfTiles = randomInRange(MAX_TILES, MIN_TILES);
+    } else {
+      currentRunData.numberOfTiles = currentLevel.numberOfTiles;
+    }
+    if (currentLevel.dynamicFires) {
+      const positionMap = {};
+      currentRunData.fires = [];
+
+      for (let i = 0; i < MAX_FIRES; i++) {
+        let newPosition = randomInRange(currentRunData.numberOfTiles, 0);
+        while (positionMap[newPosition] === true) {
+          newPosition = randomInRange(currentRunData.numberOfTiles, 0);
+        }
+        positionMap[newPosition] = true;
+        currentRunData.fires.push({ position: newPosition });
+      }
+    } else {
+      currentRunData.fires = currentLevel.fires || [];
+    }
     runButton.disabled = true;
+    displayManager.runLevel(currentRunData);
   }
   function onStopIntepreting() {
     runButton.disabled = false;
   }
+  function onLevelSelected(newLevelIndex) {
+    currentLevelIndex = newLevelIndex;
+  }
   function runCode() {
-    displayManager.runLevel();
     onStartIntepreting();
     let waterSupply = initialWaterSupply;
     let currentTile = 0;
@@ -90,7 +126,8 @@ function BotManager(workspace) {
   }
   function init() {
     displayManager = new DisplayManager({
-      levelIndex: currentLevelIndex
+      levelIndex: currentLevelIndex,
+      onLevelSelected
     });
     runButton = document.querySelector("#runButton");
     outputContainer = document.getElementById("output");
