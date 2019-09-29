@@ -14,7 +14,7 @@ function BotManager(workspace) {
   const MAX_FIRES = 2;
   const initialWaterSupply = MAX_FIRES;
   function randomInRange(max, min) {
-    return Math.random() * (max - min) + min;
+    return Math.floor(Math.random() * (max - min) + min);
   }
   function getRunData() {
     const currentRunData = {};
@@ -88,6 +88,7 @@ function BotManager(workspace) {
           return;
         }
         waterSupply--;
+        displayManager.extinguishFlame(currentPosition);
         console.log("extinguishFire");
         interpreter.setProperty(scope, "waterSupply", waterSupply);
         interpreter.setProperty(scope, "tileOnFire", false);

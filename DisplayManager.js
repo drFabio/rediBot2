@@ -67,17 +67,26 @@ function DisplayManager({
       zeroIndexedPosition * boxSize + (boxSize - botDimensions.height) / 2
     );
   }
+  this.extinguishFlame = position => {
+    const flame = display.querySelector(
+      `[data-context="flame"][data-position="${position}"]`
+    );
+    display.removeChild(flame);
+  };
   function addFlame(position) {
     const flame = flameTemplate.cloneNode(true);
     const x = boxSize - flameDimensions.width;
     const y = position * boxSize + boxSize - flameDimensions.height;
     flame.setAttribute("x", x);
     flame.setAttribute("y", y);
+    flame.setAttribute("data-context", "flame");
+    flame.setAttribute("data-position", position);
     display.appendChild(flame);
   }
   function setupLevel({ numberOfTiles = 4, fires = [] }) {
     setupBoxes(numberOfTiles);
     setBot();
+    initFlameTemplate();
     fires.forEach(addFlame);
   }
   function onLevelSelect(index) {
