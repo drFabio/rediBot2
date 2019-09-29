@@ -1,16 +1,23 @@
-function DisplayManager(containerSelector, templatesSelector) {
+function DisplayManager({
+  containerSelector,
+  templatesSelector,
+  levelSelector,
+  levelIndex
+}) {
   let container;
   let templateContainer;
-  let svg;
+  let display;
   let rectTemplate;
   let boxSize;
   let botDimensions;
   let rediBot;
   let flameTemplate;
   let flameDimensions;
-  let initialSvg;
+  let levelMenuContainer;
+  let currentLevel = levelInfo[levelIndex];
+  let rulesContainer;
+  let initialDisplay;
   init();
-  let currentPosition = 0;
   function setupBoxes() {
     const numOfBoxes = 4;
     const y = parseInt(rectTemplate.getAttribute("y"), 10);
@@ -18,7 +25,7 @@ function DisplayManager(containerSelector, templatesSelector) {
       const newRect = rectTemplate.cloneNode(true);
       newRect.setAttribute("y", boxSize * i + y);
       newRect.setAttribute("data-index", i);
-      svg.appendChild(newRect);
+      display.appendChild(newRect);
     }
   }
 
@@ -27,7 +34,7 @@ function DisplayManager(containerSelector, templatesSelector) {
       .querySelector('[data-context="rediBot"]')
       .cloneNode(true);
     rediBot.style.visibility = "hidden";
-    svg.appendChild(rediBot);
+    display.appendChild(rediBot);
     botDimensions = rediBot.getBBox();
     positionBot();
     rediBot.style.visibility = "visible";
@@ -37,12 +44,12 @@ function DisplayManager(containerSelector, templatesSelector) {
       .querySelector('[data-context="flame"]')
       .cloneNode(true);
     flameTemplate.style.visibility = "hidden";
-    svg.appendChild(flameTemplate);
+    display.appendChild(flameTemplate);
     flameDimensions = flameTemplate.getBBox();
-    svg.removeChild(flameTemplate);
+    display.removeChild(flameTemplate);
     flameTemplate.style.visibility = "visible";
   }
-  function positionBot(position) {
+  function positionBot(position = 0) {
     rediBot.setAttribute("x", (boxSize - botDimensions.width) / 2);
     rediBot.setAttribute(
       "y",
@@ -55,21 +62,58 @@ function DisplayManager(containerSelector, templatesSelector) {
     const y = position * boxSize + boxSize - flameDimensions.height;
     flame.setAttribute("x", x);
     flame.setAttribute("y", y);
-    svg.appendChild(flame);
+    display.appendChild(flame);
   }
-  function init() {
-    container = document.querySelector(containerSelector);
-    templateContainer = document.querySelector(templatesSelector);
-    svg = container.querySelector("svg");
-    initialSvg = container.cloneNode(true);
-    rectTemplate = templateContainer.querySelector("rect");
-    boxSize = parseInt(rectTemplate.getAttribute("width"), 10);
+  function setupLevel() {
     setupBoxes();
     setBot();
     initFlame();
     addFlame(1);
   }
+  function onLevelSelect({ target }, index) {
+    levelMenuContainer.querySelectorAll(".current").forEach(el => {
+      el.classList.remove("current");
+    });
+    target.classList.add("current");
+    currentLevel = levelInfo[index];
+    setupDescription();
+  }
+  function setupLevelMenu() {
+    const numLevels = levelInfo.length;
+    for (let i = 0; i < numLevels; i++) {
+      const li = document.createElement("li");
+      li.classList.add("levelItem");
+      li.setAttribute("data-index", i);
+      if (i === levelIndex) {
+        li.classList.add("current");
+      }
+      li.addEventListener("click", e => onLevelSelect(e, i));
+      li.innerHTML = i + 1;
+      levelMenuContainer.appendChild(li);
+    }
+  }
+  function setupDescription() {
+    document.querySelector("#levelDescription").innerHTML =
+      currentLevel.description;
+  }
+  function init() {
+    container = document.querySelector(containerSelector);
+    rulesContainer = document.querySelector("#rulesContainer");
+    templateContainer = document.querySelector(templatesSelector);
+    display = container.querySelector(".botDisplay");
+    levelMenuContainer = document.querySelector(levelSelector);
+    initialDisplay = display.cloneNode(true);
+    rectTemplate = templateContainer.querySelector("rect");
+    boxSize = parseInt(rectTemplate.getAttribute("width"), 10);
+    setupLevelMenu();
+    setupDescription();
+  }
   this.moveBot = newPosition => {
     positionBot(newPosition);
+  };
+  this.runLevel = () => {
+    rulesContainer.style.display = "none";
+    display.style.display = "block";
+    setupLevel();
   };
 }

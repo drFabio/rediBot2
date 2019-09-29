@@ -5,6 +5,7 @@ function BotManager(workspace) {
   let outputContainer = null;
   let displayManager = null;
   let runButton = null;
+  let currentLevelIndex = 0;
   function onStartIntepreting() {
     runButton.disabled = true;
   }
@@ -12,6 +13,7 @@ function BotManager(workspace) {
     runButton.disabled = false;
   }
   function runCode() {
+    displayManager.runLevel();
     onStartIntepreting();
     let waterSupply = initialWaterSupply;
     let currentTile = 0;
@@ -27,9 +29,9 @@ function BotManager(workspace) {
       console.log("extinguishFire");
       console.log({ currentTile, waterSupply });
     };
-    const highlightBlock = (id) => {
+    const highlightBlock = id => {
       workspace.highlightBlock(id);
-    }
+    };
     const initIntepreter = (interpreter, scope) => {
       interpreter.setProperty(scope, "waterSupply", waterSupply);
       interpreter.setProperty(scope, "currentTile", currentTile);
@@ -57,11 +59,11 @@ function BotManager(workspace) {
       const lastOne = jsInterpreter.step() === false;
       if (lastOne) {
         onStopIntepreting();
-        return
+        return;
       }
       if (stepCount % 2 === 0) {
-        nextStep()
-        return
+        nextStep();
+        return;
       }
       window.setTimeout(nextStep, stepTimer);
     };
@@ -87,7 +89,12 @@ function BotManager(workspace) {
     }
   }
   function init() {
-    displayManager = new DisplayManager("#visualContainer", ".svgTemplates");
+    displayManager = new DisplayManager({
+      containerSelector: "#visualContainer",
+      templatesSelector: ".svgTemplates",
+      levelSelector: "#levelSelector",
+      levelIndex: currentLevelIndex
+    });
     runButton = document.querySelector("#runButton");
     outputContainer = document.getElementById("output");
     workspace.addChangeListener(onWorspaceUpdate);

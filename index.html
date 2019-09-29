@@ -1,162 +1,176 @@
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <xml id="toolbox" style="display: none">
+      <block type="controls_repeat_ext"></block>
+      <block type="controls_if"></block>
+      <block type="redi_var_tileOnFire"></block>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Document</title>
-  <xml id="toolbox" style="display: none">
-    <block type="controls_repeat_ext"></block>
-    <block type="controls_if"></block>
-    <block type="redi_var_tileOnFire"></block>
-
-    <block type="math_number"></block>
-    <block type="redi_var_tileAhead"></block>
-    <block type="redi_var_waterSupply"></block>
-    <block type="redi_moveForward"></block>
-    <block type="redi_extinguishFire"></block>
-    <block type="logic_compare">
-      <field name="OP">EQ</field>
-    </block>
-    <block type="controls_whileUntil">
-      <field name="MODE">WHILE</field>
-    </block>
-    <block type="logic_negate"></block>
-    <!--
+      <block type="math_number"></block>
+      <block type="redi_var_tileAhead"></block>
+      <block type="redi_var_waterSupply"></block>
+      <block type="redi_moveForward"></block>
+      <block type="redi_extinguishFire"></block>
+      <block type="logic_compare">
+        <field name="OP">EQ</field>
+      </block>
+      <block type="controls_whileUntil">
+        <field name="MODE">WHILE</field>
+      </block>
+      <block type="logic_negate"></block>
+      <!--
     <block type="logic_compare"></block>
     <block type="math_number"></block>
     <block type="math_arithmetic"></block>
     <block type="text"></block>
     <block type="text_print"></block> -->
-  </xml>
-  <link href="./style.css" rel="stylesheet" type="text/css" />
-</head>
+    </xml>
+    <link href="./style.css" rel="stylesheet" type="text/css" />
+  </head>
 
-<body>
-  <div id="wrapper">
-    <nav id="header">
-      <a href="">Home</a>
-    </nav>
-    <div id="blocklyArea">
-      <div id="blocklyDiv"></div>
+  <body>
+    <div id="wrapper">
+      <nav id="header">
+        <a href="">Home</a>
+      </nav>
+      <ul id="levelSelector"></ul>
+      <div id="blocklyArea">
+        <div id="blocklyDiv"></div>
+      </div>
+      <div id="visualContainer">
+        <div id="rulesContainer">
+          <div id="levelDescription"></div>
+        </div>
+        <svg
+          viewBox="0 0 500 500"
+          width="100%"
+          height="100%"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid meet"
+          class="botDisplay"
+        >
+          <defs class="svgTemplates">
+            <rect
+              x="0"
+              y="0"
+              width="100"
+              height="100"
+              style="fill:white;stroke:black;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9"
+            />
+            <image height="80" xlink:href="./bot.png" data-context="rediBot" />
+            <image height="45" xlink:href="./fire.png" data-context="flame" />
+          </defs>
+        </svg>
+      </div>
     </div>
-    <div id="visualContainer">
-      <svg viewBox="0 0 500 500" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="xMidYMid meet">
-        <defs class="svgTemplates">
-          <rect x="0" y="0" width="100" height="100"
-            style="fill:white;stroke:black;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9" />
-          <image height="80" xlink:href="./bot.png" data-context="rediBot" />
-          <image height="45" xlink:href="./fire.png" data-context="flame" />
-        </defs>
-      </svg>
-    </div>
-  </div>
-  <textarea name="" id="output" cols="30" rows="10"></textarea>
-  <button id="runButton">Run</button>
-  <script src="./blockly/blockly_compressed.js"></script>
-  <script src="./blockly/javascript_compressed.js"></script>
-  <script src="./blockly/blocks_compressed.js"></script>
-  <script src="./blockly/msg/js/en.js"></script>
-  <script src="./JS-Interpreter/acorn_interpreter.js"></script>
-  <script src="./DisplayManager.js"></script>
-  <script src="./BotManager.js"></script>
-  <script src="./BlocklyManager.js"></script>
+    <textarea name="" id="output" cols="30" rows="10"></textarea>
+    <button id="runButton">Run</button>
+    <script src="./blockly/blockly_compressed.js"></script>
+    <script src="./blockly/javascript_compressed.js"></script>
+    <script src="./blockly/blocks_compressed.js"></script>
+    <script src="./blockly/msg/js/en.js"></script>
+    <script src="./JS-Interpreter/acorn_interpreter.js"></script>
+    <script src="./levelInfo.js"></script>
+    <script src="./DisplayManager.js"></script>
+    <script src="./BotManager.js"></script>
+    <script src="./BlocklyManager.js"></script>
 
-  <script>
-    window.addEventListener("load", function () {
-      let currentCode = null;
+    <script>
+      window.addEventListener("load", function() {
+        let currentCode = null;
 
-      Blockly.Blocks["redi_var_tileOnFire"] = {
-        init: function () {
-          this.jsonInit({
-            type: "redi_var_tileOnFire",
-            message0: "tileOnFire",
-            output: "Boolean",
-            colour: 230,
-            tooltip: "Whether or not the tile is on fire",
-            helpUrl: ""
-          });
-        }
-      };
-      Blockly.JavaScript["redi_var_tileOnFire"] = function (block) {
-        // TODO: Assemble JavaScript into code variable.
-        var code = `tileOnFire`; // JSON.stringify(block);
-        // TODO: Change ORDER_NONE to the correct strength.
-        return [code, Blockly.JavaScript.ORDER_NONE];
-      };
-      Blockly.Blocks["redi_moveForward"] = {
-        init: function () {
-          this.jsonInit({
-            type: "block_type",
-            message0: "move forward",
-            previousStatement: null,
-            nextStatement: null,
-            colour: 230,
-            tooltip: "",
-            helpUrl: ""
-          });
-        }
-      };
-      Blockly.JavaScript["redi_moveForward"] = function (block) {
-        return "moveForward();\n";
-      };
-      Blockly.Blocks["redi_extinguishFire"] = {
-        init: function () {
-          this.appendDummyInput().appendField("Extinguish fire");
-          this.setPreviousStatement(true, null);
-          this.setNextStatement(true, null);
-          this.setColour(230);
-          this.setTooltip(
-            "Make the rediBot extinguish a fire if there is water available, decrease water"
-          );
-          this.setHelpUrl("");
-        }
-      };
-      Blockly.JavaScript["redi_extinguishFire"] = function (block) {
-        return "extinguishFire();\n";
-      };
-      Blockly.Blocks["redi_var_tileAhead"] = {
-        init: function () {
-          this.jsonInit({
-            type: "redi_var_tileAhead",
-            message0: "tileAhead",
-            output: "Boolean",
-            colour: 230,
-            tooltip: "Whether or not there is a tile ahead",
-            helpUrl: ""
-          });
-        }
-      };
-      Blockly.JavaScript["redi_var_tileAhead"] = function (block) {
-        // TODO: Assemble JavaScript into code variable.
-        var code = "tileAhead";
-        // TODO: Change ORDER_NONE to the correct strength.
-        return [code, Blockly.JavaScript.ORDER_NONE];
-      };
-      Blockly.Blocks["redi_var_waterSupply"] = {
-        init: function () {
-          this.jsonInit({
-            type: "redi_var_watersupply",
-            message0: "waterSupply",
-            output: "Number",
-            colour: 230,
-            tooltip: "Volume of water remaining",
-            helpUrl: ""
-          });
-        }
-      };
-      Blockly.JavaScript["redi_var_waterSupply"] = function (block) {
-        // TODO: Assemble JavaScript into code variable.
-        var code = "waterSupply";
-        // TODO: Change ORDER_NONE to the correct strength.
-        return [code, Blockly.JavaScript.ORDER_NONE];
-      };
-      const blocklyManager = new BlocklyManager();
-      const botManager = new BotManager(blocklyManager.getWorkspace());
-      console.log("All assets are loaded");
-    });
-  </script>
-</body>
-
+        Blockly.Blocks["redi_var_tileOnFire"] = {
+          init: function() {
+            this.jsonInit({
+              type: "redi_var_tileOnFire",
+              message0: "tileOnFire",
+              output: "Boolean",
+              colour: 230,
+              tooltip: "Whether or not the tile is on fire",
+              helpUrl: ""
+            });
+          }
+        };
+        Blockly.JavaScript["redi_var_tileOnFire"] = function(block) {
+          // TODO: Assemble JavaScript into code variable.
+          var code = `tileOnFire`; // JSON.stringify(block);
+          // TODO: Change ORDER_NONE to the correct strength.
+          return [code, Blockly.JavaScript.ORDER_NONE];
+        };
+        Blockly.Blocks["redi_moveForward"] = {
+          init: function() {
+            this.jsonInit({
+              type: "block_type",
+              message0: "move forward",
+              previousStatement: null,
+              nextStatement: null,
+              colour: 230,
+              tooltip: "",
+              helpUrl: ""
+            });
+          }
+        };
+        Blockly.JavaScript["redi_moveForward"] = function(block) {
+          return "moveForward();\n";
+        };
+        Blockly.Blocks["redi_extinguishFire"] = {
+          init: function() {
+            this.appendDummyInput().appendField("Extinguish fire");
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setColour(230);
+            this.setTooltip(
+              "Make the rediBot extinguish a fire if there is water available, decrease water"
+            );
+            this.setHelpUrl("");
+          }
+        };
+        Blockly.JavaScript["redi_extinguishFire"] = function(block) {
+          return "extinguishFire();\n";
+        };
+        Blockly.Blocks["redi_var_tileAhead"] = {
+          init: function() {
+            this.jsonInit({
+              type: "redi_var_tileAhead",
+              message0: "tileAhead",
+              output: "Boolean",
+              colour: 230,
+              tooltip: "Whether or not there is a tile ahead",
+              helpUrl: ""
+            });
+          }
+        };
+        Blockly.JavaScript["redi_var_tileAhead"] = function(block) {
+          // TODO: Assemble JavaScript into code variable.
+          var code = "tileAhead";
+          // TODO: Change ORDER_NONE to the correct strength.
+          return [code, Blockly.JavaScript.ORDER_NONE];
+        };
+        Blockly.Blocks["redi_var_waterSupply"] = {
+          init: function() {
+            this.jsonInit({
+              type: "redi_var_watersupply",
+              message0: "waterSupply",
+              output: "Number",
+              colour: 230,
+              tooltip: "Volume of water remaining",
+              helpUrl: ""
+            });
+          }
+        };
+        Blockly.JavaScript["redi_var_waterSupply"] = function(block) {
+          // TODO: Assemble JavaScript into code variable.
+          var code = "waterSupply";
+          // TODO: Change ORDER_NONE to the correct strength.
+          return [code, Blockly.JavaScript.ORDER_NONE];
+        };
+        const blocklyManager = new BlocklyManager();
+        const botManager = new BotManager(blocklyManager.getWorkspace());
+        console.log("All assets are loaded");
+      });
+    </script>
+  </body>
 </html>
