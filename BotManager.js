@@ -12,6 +12,7 @@ function BotManager(workspace) {
   const MAX_TILES = 20;
   const MIN_TILES = 3;
   const INITIAL_WATER_SUPPLY = 2;
+  let forceStop = false;
   function ExtinguishWithoutWaterError() {
     this.message = "Tried to extinguish a flame without water";
   }
@@ -27,7 +28,9 @@ function BotManager(workspace) {
   }
   WalkedOutsideOfTheBoundariesError.prototype = Error.prototype;
   WalkedOutsideOfTheBoundariesError.prototype.code = "OUTSIDE_OF_PATH";
-
+  function handleStopClick() {
+    forceStop = true;
+  }
   function randomInRange(max, min) {
     return Math.floor(Math.random() * (max - min) + min);
   }
@@ -68,6 +71,7 @@ function BotManager(workspace) {
   }
   function onStartIntepreting(currentRunData) {
     runButton.disabled = true;
+    forceStop = false;
     displayManager.runLevel(currentRunData);
   }
   function onStopIntepreting(finalRunData, currentLevel) {
@@ -77,9 +81,13 @@ function BotManager(workspace) {
       extinguishedFires,
       currentPosition,
       numberOfTiles,
-      failed
+      failed,
+      stopped
     } = finalRunData;
     runButton.disabled = false;
+    if (stopped) {
+      return;
+    }
     const errorMessage = "You did not passed this level";
     const successMessage = "You passed this level";
     let passed = false;
@@ -203,6 +211,10 @@ function BotManager(workspace) {
       const jsInterpreter = new Interpreter(currentCode, initIntepreter);
       let stepCount = -1;
       const nextStep = () => {
+        if (forceStop) {
+          onStopIntepreting({ stopped: true }, currentLevel);
+          return;
+        }
         if (runTimeException) {
           alert(runTimeException.message);
           onStopIntepreting({ failed: true }, currentLevel);
@@ -257,7 +269,8 @@ function BotManager(workspace) {
   function init() {
     displayManager = new DisplayManager({
       levelIndex: currentLevelIndex,
-      onLevelSelected
+      onLevelSelected,
+      onStop: handleStopClick
     });
     runButton = document.querySelector("#runButton");
     outputContainer = document.getElementById("output");

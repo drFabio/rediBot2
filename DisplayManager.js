@@ -7,7 +7,9 @@ function DisplayManager({
   containerSelector = "#visualContainer",
   templatesSelector = ".svgTemplates",
   levelSelector = "#levelSelector",
+  stopButtonSelector = "#stopButton",
   onLevelSelected = null,
+  onStop,
   levelIndex = 0
 }) {
   const COLOR_RED = "#f15922";
@@ -25,6 +27,7 @@ function DisplayManager({
   let rulesContainer;
   let initialDisplay;
   let tilesGroup;
+  let stopButton;
   init();
   function setupBoxes(numOfBoxes) {
     tilesGroup = document.createElementNS(XML_NS, "g");
@@ -139,11 +142,13 @@ function DisplayManager({
     container = document.querySelector(containerSelector);
     rulesContainer = document.querySelector("#rulesContainer");
     templateContainer = document.querySelector(templatesSelector);
+    stopButton = document.querySelector(stopButtonSelector);
     display = container.querySelector(".botDisplay");
     levelMenuContainer = document.querySelector(levelSelector);
     initialDisplay = display.cloneNode(true);
     rectTemplate = templateContainer.querySelector("rect");
     boxSize = parseInt(rectTemplate.getAttribute("width"), 10);
+    stopButton.addEventListener("click", onStop);
     initLevelMenu();
     initFlameTemplate();
   }
