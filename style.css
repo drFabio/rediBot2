@@ -8,6 +8,16 @@
   grid-area: left;
   position: relative;
 }
+#controlContainer {
+  grid-area: controls;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 0.2rem;
+  text-align: center;
+  align-items: center;
+}
 #blocklyDiv {
   position: absolute;
 }
@@ -17,12 +27,13 @@
   width: 100%;
   height: 100%;
   grid-template-areas:
-    "header header header header"
-    "top top top top"
-    "left left right right"
-    "footer footer footer footer";
-  grid-template-rows: auto 4rem 1fr 5vh;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+    "header header header header header"
+    "top top top top top"
+    "spacer spacer spacer spacer spacer"
+    "left left controls right right"
+    "footer footer footer footer footer";
+  grid-template-rows: auto 4rem 2rem 1fr 5vh;
+  grid-template-columns: 1fr 1fr 6rem 1fr 1fr;
 }
 #header {
   grid-area: header;
@@ -68,4 +79,16 @@ body {
   display: flex;
   text-align: center;
   align-items: center;
+}
+#output {
+  display: none;
+}
+button {
+  border: 0;
+  background-color: none;
+}
+
+#controlContainer button {
+  width: 100%;
+  font-size: 1.8rem;
 }
