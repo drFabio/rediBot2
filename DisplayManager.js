@@ -29,6 +29,10 @@ function DisplayManager({
   let tilesGroup;
   let stopButton;
   let yStartPoint;
+  let waterSupplyValueContainer;
+  let tileAheadValueContainer;
+  let tileOnFireValueContainer;
+  let hudContainer;
   init();
   function setupBoxes(numOfBoxes) {
     tilesGroup = document.createElementNS(XML_NS, "g");
@@ -165,7 +169,27 @@ function DisplayManager({
     const oldDisplay = display;
     display = initialDisplay.cloneNode(true);
     oldDisplay.parentNode.replaceChild(display, oldDisplay);
+    hudContainer = container.querySelector("#hud");
+    waterSupplyValueContainer = hudContainer.querySelector(
+      '[data-context="waterSupplyValue"]'
+    );
+    tileAheadValueContainer = hudContainer.querySelector(
+      '[data-context="tileAheadValue"]'
+    );
+    tileOnFireValueContainer = hudContainer.querySelector(
+      '[data-context="tileOnFireValue"]'
+    );
     showGameDisplay();
     setupLevel(currentRunData);
+  };
+  this.setHud = ({ waterSupply, tileAhead, tileOnFire }) => {
+    console.log(
+      { tileAhead },
+      tileAheadValueContainer,
+      tileAheadValueContainer.childNodes[0]
+    );
+    waterSupplyValueContainer.innerHTML = waterSupply;
+    tileAheadValueContainer.innerHTML = tileAhead ? "Yes" : "No";
+    tileOnFireValueContainer.innerHTML = tileOnFire ? "Yes" : "No";
   };
 }

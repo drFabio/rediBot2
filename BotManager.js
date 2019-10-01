@@ -129,6 +129,17 @@ function BotManager(workspace) {
     let stepTimer = DEFAULT_STEP_TIMER;
 
     function initIntepreter(interpreter, scope) {
+      function setState(newState = {}) {
+        const oldState = { tileAhead, tileOnFire, waterSupply };
+        const currentState = { ...oldState, ...newState };
+        ({ tileAhead, tileOnFire, waterSupply } = currentState);
+        // if we don't pass this to the intepreter back the value will not be evaluated
+        interpreter.setProperty(scope, "tileAhead", tileAhead);
+        interpreter.setProperty(scope, "tileOnFire", tileOnFire);
+        interpreter.setProperty(scope, "waterSupply", waterSupply);
+        displayManager.setHud(currentState);
+      }
+      setState();
       function moveForward() {
         stepTimer = Math.max(500, stepTimer);
 
@@ -146,9 +157,7 @@ function BotManager(workspace) {
         tileAhead = currentPosition + 1 < numberOfTiles;
         tileOnFire = getTileOnFire();
         displayManager.moveBot(currentPosition);
-        // if we don't pass this to the intepreter back the value will not be evaluated
-        interpreter.setProperty(scope, "tileAhead", tileAhead);
-        interpreter.setProperty(scope, "tileOnFire", tileOnFire);
+        setState({ tileAhead, tileOnFire });
         console.log("AFTER FORWARD", {
           tileOnFire,
           tileAhead,
@@ -179,8 +188,7 @@ function BotManager(workspace) {
         }
         extinguishedFires.push(currentPosition);
         displayManager.extinguishFlame(currentPosition);
-        interpreter.setProperty(scope, "waterSupply", waterSupply);
-        interpreter.setProperty(scope, "tileOnFire", false);
+        setState({ waterSupply, tileOnFire: false });
         console.log("AFTER EXTINGUISH FIRE", {
           tileOnFire,
           tileAhead,
@@ -191,10 +199,6 @@ function BotManager(workspace) {
       function highlightBlock(id) {
         workspace.highlightBlock(id);
       }
-      interpreter.setProperty(scope, "waterSupply", waterSupply);
-      interpreter.setProperty(scope, "tileAhead", tileAhead);
-      interpreter.setProperty(scope, "tileOnFire", tileOnFire);
-
       interpreter.setProperty(
         scope,
         "moveForward",
