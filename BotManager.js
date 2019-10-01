@@ -66,11 +66,22 @@ function BotManager(workspace) {
     runButton.disabled = true;
     displayManager.runLevel(currentRunData);
   }
-  function onStopIntepreting({ fires, currentPosition, numberOfTiles }) {
+  function onStopIntepreting({
+    failed,
+    firesPuttedOut,
+    numberOfFires,
+    currentPosition,
+    numberOfTiles
+  }) {
     runButton.disabled = false;
-    if (currentPosition === numberOfTiles - 1 && fires.length === 0) {
+    if (
+      !failed &&
+      currentPosition === numberOfTiles - 1 &&
+      firesPuttedOut === numberOfFires
+    ) {
       alert("You passed this level");
     }
+    alert("You did not passed this level");
   }
   function onLevelSelected(newLevelIndex) {
     currentLevelIndex = newLevelIndex;
@@ -79,6 +90,8 @@ function BotManager(workspace) {
     const runData = getRunData();
     onStartIntepreting(runData);
     let { waterSupply, fires, currentPosition, numberOfTiles } = runData;
+    const numberOfFires = fires.length;
+    let firesPuttedOut = 0;
     let tileOnFire = fires[0] === currentPosition;
     if (tileOnFire) {
       fires.shift();
@@ -115,6 +128,7 @@ function BotManager(workspace) {
           return;
         }
         waterSupply--;
+        firesPuttedOut++;
         displayManager.extinguishFlame(currentPosition);
         console.log("extinguishFire");
         interpreter.setProperty(scope, "waterSupply", waterSupply);
@@ -151,6 +165,7 @@ function BotManager(workspace) {
       const nextStep = () => {
         if (runTimeException) {
           alert(runTimeException.message);
+          onStopIntepreting({ failed: true });
           return;
         }
         stepCount++;
@@ -158,7 +173,8 @@ function BotManager(workspace) {
         if (lastOne) {
           onStopIntepreting({
             waterSupply,
-            fires,
+            numberOfFires,
+            firesPuttedOut,
             currentPosition,
             numberOfTiles
           });

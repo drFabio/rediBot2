@@ -1,3 +1,4 @@
+const XML_NS = "http://www.w3.org/2000/svg";
 /**
  * Class that handles visual initialization
  * @param {*} param0
@@ -9,6 +10,7 @@ function DisplayManager({
   onLevelSelected = null,
   levelIndex = 0
 }) {
+  const COLOR_RED = "#f15922";
   let container;
   let templateContainer;
   let display;
@@ -22,14 +24,28 @@ function DisplayManager({
   let currentLevel = levelInfo[levelIndex];
   let rulesContainer;
   let initialDisplay;
+  let tilesGroup;
   init();
   function setupBoxes(numOfBoxes) {
+    tilesGroup = document.createElementNS(XML_NS, "g");
+    tilesGroup.setAttribute("data-context", "tilesGroup");
+    display.appendChild(tilesGroup);
     const y = parseInt(rectTemplate.getAttribute("y"), 10);
     for (let i = 0; i < numOfBoxes; i++) {
       const newRect = rectTemplate.cloneNode(true);
       newRect.setAttribute("y", boxSize * i + y);
-      newRect.setAttribute("data-index", i);
-      display.appendChild(newRect);
+      const rectTextGroup = document.createElementNS(XML_NS, "g");
+      rectTextGroup.setAttribute("data-index", i);
+      rectTextGroup.setAttribute("data-context", "rectTextGroup");
+      rectTextGroup.appendChild(newRect);
+      const text = document.createElementNS(XML_NS, "text");
+      text.setAttribute("fill", COLOR_RED);
+      text.innerHTML = i + 1;
+      text.setAttribute("font-size", 40);
+      text.setAttribute("x", 10);
+      text.setAttribute("y", boxSize * i + y + boxSize - 10);
+      rectTextGroup.appendChild(text);
+      tilesGroup.appendChild(rectTextGroup);
     }
   }
   function showGameDisplay() {
@@ -71,7 +87,7 @@ function DisplayManager({
     const flame = display.querySelector(
       `[data-context="flame"][data-position="${position}"]`
     );
-    display.removeChild(flame);
+    flame.parentNode.removeChild(flame);
   };
   function addFlame(position) {
     const flame = flameTemplate.cloneNode(true);
@@ -81,7 +97,9 @@ function DisplayManager({
     flame.setAttribute("y", y);
     flame.setAttribute("data-context", "flame");
     flame.setAttribute("data-position", position);
-    display.appendChild(flame);
+    display
+      .querySelector(`[data-index="${position}"][data-context="rectTextGroup"]`)
+      .appendChild(flame);
   }
   function setupLevel({ numberOfTiles = 4, fires = [] }) {
     setupBoxes(numberOfTiles);
@@ -130,7 +148,8 @@ function DisplayManager({
     initFlameTemplate();
   }
   this.moveBot = newPosition => {
-    positionBot(newPosition);
+    const newY = newPosition * boxSize * -1;
+    tilesGroup.setAttribute("transform", `translate(0, ${newY})`);
   };
   this.runLevel = currentRunData => {
     const oldDisplay = display;
