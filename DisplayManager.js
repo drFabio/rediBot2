@@ -8,6 +8,7 @@ function DisplayManager({
   templatesSelector = ".svgTemplates",
   levelSelector = "#levelSelector",
   stopButtonSelector = "#stopButton",
+  passedLevels,
   onLevelSelected = null,
   onStop,
   levelIndex = 0
@@ -141,6 +142,9 @@ function DisplayManager({
       li.setAttribute("data-index", i);
       li.addEventListener("click", e => onLevelSelect(i));
       li.innerHTML = i + 1;
+      if (passedLevels[i]) {
+        li.classList.add("passed");
+      }
       levelMenuContainer.appendChild(li);
     }
     onLevelSelect(levelIndex, false);
@@ -193,5 +197,11 @@ function DisplayManager({
     waterSupplyValueContainer.innerHTML = waterSupply;
     tileAheadValueContainer.innerHTML = tileAhead ? "Yes" : "No";
     tileOnFireValueContainer.innerHTML = tileOnFire ? "Yes" : "No";
+  };
+  this.setLevelAsPassed = level => {
+    const levelItem = levelMenuContainer.querySelector(
+      `.levelItem[data-index="${level}"]`
+    );
+    levelItem.classList.add("passed");
   };
 }

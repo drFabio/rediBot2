@@ -109,6 +109,10 @@ function BotManager(blocklyManager) {
       passed = true;
       message = successMessage;
     }
+    if (passed) {
+      displayManager.setLevelAsPassed(currentLevelIndex);
+      storageManager.setPassedLevel(currentLevelIndex);
+    }
     alert(message);
   }
   function onLevelSelected(newLevelIndex) {
@@ -292,11 +296,14 @@ function BotManager(blocklyManager) {
   function init() {
     storageManager = new StorageManager();
     currentLevelIndex = storageManager.getCurrentLevel();
+    const passedLevels = storageManager.getPassedLevels();
+
     onLevelSelected(currentLevelIndex);
     displayManager = new DisplayManager({
       levelIndex: currentLevelIndex,
       onLevelSelected,
-      onStop: handleStopClick
+      onStop: handleStopClick,
+      passedLevels
     });
     runButton = document.querySelector("#runButton");
     outputContainer = document.getElementById("output");

@@ -139,3 +139,6 @@ button {
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
 }
+.levelItem.passed:before {
+  content: "\2713 ";
+}
