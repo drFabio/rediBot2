@@ -3,7 +3,7 @@
  * @param {*} workspace
  */
 function BotManager(workspace) {
-  const stepTimer = 200;
+  const DEFAULT_STEP_TIMER = 150;
   let currentCode = "";
   let outputContainer = null;
   let displayManager = null;
@@ -126,8 +126,12 @@ function BotManager(workspace) {
     let positionThatWaterRunOut = 0;
     let tileAhead = currentPosition + 1 < numberOfTiles;
     let runTimeException = null;
+    let stepTimer = DEFAULT_STEP_TIMER;
+
     function initIntepreter(interpreter, scope) {
       function moveForward() {
+        stepTimer = 500;
+
         console.log("ON MOVE FORWARD", {
           tileOnFire,
           tileAhead,
@@ -153,6 +157,7 @@ function BotManager(workspace) {
         });
       }
       function extinguishFire() {
+        stepTimer = 1100;
         console.log("ON EXTINGUISH FIRE", {
           tileOnFire,
           tileAhead,
@@ -221,6 +226,7 @@ function BotManager(workspace) {
           return;
         }
         stepCount++;
+        stepTimer = DEFAULT_STEP_TIMER;
         const lastOne = jsInterpreter.step() === false;
         if (lastOne) {
           onStopIntepreting(

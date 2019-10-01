@@ -109,3 +109,33 @@ button {
   color: white;
   cursor: not-allowed;
 }
+@keyframes gentlyRock {
+  0% {
+    transform: rotate(2deg);
+  }
+  50% {
+    transform: rotate(-2deg);
+  }
+  100% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.flame {
+  animation: gentlyRock 3s ease-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+.flame.out {
+  animation: fadeOut 1.5s ease-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}

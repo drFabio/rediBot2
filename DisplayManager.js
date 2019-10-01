@@ -90,7 +90,8 @@ function DisplayManager({
     const flame = display.querySelector(
       `[data-context="flame"][data-position="${position}"]`
     );
-    flame.parentNode.removeChild(flame);
+    flame.classList.add("out");
+    // flame.parentNode.removeChild(flame);
   };
   function addFlame(position) {
     const flame = flameTemplate.cloneNode(true);
