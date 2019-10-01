@@ -11,8 +11,7 @@ function BotManager(workspace) {
   let currentLevelIndex = 0;
   const MAX_TILES = 20;
   const MIN_TILES = 3;
-  const MAX_FIRES = 2;
-  const INITIAL_WATER_SUPPLY = MAX_FIRES;
+  const INITIAL_WATER_SUPPLY = 2;
   function ExtinguishWithoutWaterError() {
     this.message = "Tried to extinguish a flame without water";
   }
@@ -32,9 +31,8 @@ function BotManager(workspace) {
   function randomInRange(max, min) {
     return Math.floor(Math.random() * (max - min) + min);
   }
-  function getRunData() {
+  function getRunData(currentLevel) {
     const currentRunData = {};
-    const currentLevel = levelInfo[currentLevelIndex];
     if (currentLevel.dynamicTiles) {
       currentRunData.numberOfTiles = randomInRange(MAX_TILES, MIN_TILES);
     } else {
@@ -43,8 +41,14 @@ function BotManager(workspace) {
     if (currentLevel.dynamicFires) {
       const fireMap = {};
       currentRunData.fires = [];
-
-      for (let i = 0; i < MAX_FIRES; i++) {
+      let maxFires = INITIAL_WATER_SUPPLY;
+      if (currentLevel.unlimitedFires) {
+        maxFires = randomInRange(
+          INITIAL_WATER_SUPPLY,
+          currentRunData.numberOfTiles
+        );
+      }
+      for (let i = 0; i < maxFires; i++) {
         let newPosition = randomInRange(currentRunData.numberOfTiles, 0);
         while (fireMap[newPosition] === true) {
           newPosition = randomInRange(currentRunData.numberOfTiles, 0);
@@ -66,59 +70,88 @@ function BotManager(workspace) {
     runButton.disabled = true;
     displayManager.runLevel(currentRunData);
   }
-  function onStopIntepreting({
-    failed,
-    firesPuttedOut,
-    numberOfFires,
-    currentPosition,
-    numberOfTiles
-  }) {
+  function onStopIntepreting(finalRunData, currentLevel) {
+    const {
+      fires,
+      waterSupply,
+      extinguishedFires,
+      currentPosition,
+      numberOfTiles,
+      failed
+    } = finalRunData;
     runButton.disabled = false;
-    if (
+    const errorMessage = "You did not passed this level";
+    const successMessage = "You passed this level";
+    let passed = false;
+    let message = errorMessage;
+    if (currentLevel.hasOwnProperty("checkSuccess")) {
+      const levelPassData = currentLevel.checkSuccess(finalRunData);
+      passed = levelPassData.passed;
+      if (levelPassData.message) {
+        message = levelPassData.message;
+      } else if (passed) {
+        message = successMessage;
+      }
+    } else if (
       !failed &&
-      currentPosition === numberOfTiles - 1 &&
-      firesPuttedOut === numberOfFires
+      fires.length === extinguishedFires.length &&
+      currentPosition === numberOfTiles - 1
     ) {
-      alert("You passed this level");
+      passed = true;
+      message = successMessage;
     }
-    alert("You did not passed this level");
+    alert(message);
   }
   function onLevelSelected(newLevelIndex) {
     currentLevelIndex = newLevelIndex;
   }
   function runCode() {
-    const runData = getRunData();
+    const currentLevel = levelInfo[currentLevelIndex];
+    const runData = getRunData(currentLevel);
     onStartIntepreting(runData);
     let { waterSupply, fires, currentPosition, numberOfTiles } = runData;
-    const numberOfFires = fires.length;
-    let firesPuttedOut = 0;
-    let tileOnFire = fires[0] === currentPosition;
-    if (tileOnFire) {
-      fires.shift();
-    }
+    const extinguishedFires = [];
+    const getTileOnFire = () => {
+      return fires.findIndex(pos => pos === currentPosition) > -1;
+    };
+    let tileOnFire = getTileOnFire();
+    let positionThatWaterRunOut = 0;
     let tileAhead = currentPosition + 1 < numberOfTiles;
     let runTimeException = null;
     function initIntepreter(interpreter, scope) {
       function moveForward() {
-        console.log(Object.keys(interpreter));
+        console.log("ON MOVE FORWARD", {
+          tileOnFire,
+          tileAhead,
+          currentPosition,
+          waterSupply
+        });
         currentPosition++;
-        console.log("moveForward", { tileAhead }, this);
         if (!tileAhead) {
           runTimeException = new WalkedOutsideOfTheBoundariesError();
           return;
         }
         tileAhead = currentPosition + 1 < numberOfTiles;
-        tileOnFire = fires[0] === currentPosition;
-        if (tileOnFire) {
-          fires.shift();
-        }
+        tileOnFire = getTileOnFire();
         displayManager.moveBot(currentPosition);
-        console.log({ currentPosition, waterSupply });
         // if we don't pass this to the intepreter back the value will not be evaluated
         interpreter.setProperty(scope, "tileAhead", tileAhead);
         interpreter.setProperty(scope, "tileOnFire", tileOnFire);
+        console.log("AFTER FORWARD", {
+          tileOnFire,
+          tileAhead,
+          currentPosition,
+          waterSupply
+        });
       }
       function extinguishFire() {
+        console.log("ON EXTINGUISH FIRE", {
+          tileOnFire,
+          tileAhead,
+          currentPosition,
+          waterSupply
+        });
+        console.log(`EXTINGUISHING FIRE WITH WATER SUPPLY ${waterSupply}`);
         if (waterSupply <= 0) {
           runTimeException = new ExtinguishWithoutWaterError();
           return;
@@ -128,12 +161,19 @@ function BotManager(workspace) {
           return;
         }
         waterSupply--;
-        firesPuttedOut++;
+        if (waterSupply === 0) {
+          positionThatWaterRunOut = currentPosition;
+        }
+        extinguishedFires.push(currentPosition);
         displayManager.extinguishFlame(currentPosition);
-        console.log("extinguishFire");
         interpreter.setProperty(scope, "waterSupply", waterSupply);
         interpreter.setProperty(scope, "tileOnFire", false);
-        console.log({ currentPosition, waterSupply });
+        console.log("AFTER EXTINGUISH FIRE", {
+          tileOnFire,
+          tileAhead,
+          currentPosition,
+          waterSupply
+        });
       }
       function highlightBlock(id) {
         workspace.highlightBlock(id);
@@ -165,19 +205,23 @@ function BotManager(workspace) {
       const nextStep = () => {
         if (runTimeException) {
           alert(runTimeException.message);
-          onStopIntepreting({ failed: true });
+          onStopIntepreting({ failed: true }, currentLevel);
           return;
         }
         stepCount++;
         const lastOne = jsInterpreter.step() === false;
         if (lastOne) {
-          onStopIntepreting({
-            waterSupply,
-            numberOfFires,
-            firesPuttedOut,
-            currentPosition,
-            numberOfTiles
-          });
+          onStopIntepreting(
+            {
+              fires,
+              waterSupply,
+              extinguishedFires,
+              currentPosition,
+              numberOfTiles,
+              positionThatWaterRunOut
+            },
+            currentLevel
+          );
           return;
         }
         if (stepCount % 2 === 0) {

@@ -31,6 +31,38 @@ const levelInfo = [
       "Reach the last tile. Extinguish the fires wherever you find them. Stop moving forward when RediBot runs out of water.",
     dynamicTiles: true,
     dynamicFires: true,
-    maxFires: false
+    unlimitedFires: true,
+    checkSuccess(finalRunData) {
+      const {
+        fires,
+        waterSupply,
+        extinguishedFires,
+        currentPosition,
+        numberOfTiles,
+        positionThatWaterRunOut
+      } = finalRunData;
+      if (waterSupply !== 0) {
+        return {
+          passed: false,
+          message: "You did not spent all the water"
+        };
+      }
+      const extinguishedAllFiresBefore = extinguishedFires.every(
+        pos => pos <= currentPosition
+      );
+      if (!extinguishedAllFiresBefore) {
+        return {
+          passed: false,
+          message: "You did not extinguished all fires you encountered"
+        };
+      }
+      if (positionThatWaterRunOut !== currentPosition) {
+        return {
+          passed: false,
+          message: "You did not stop when the water run out"
+        };
+      }
+      return { passed: true };
+    }
   }
 ];

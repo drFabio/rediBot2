@@ -92,3 +92,17 @@ button {
   width: 100%;
   font-size: 1.8rem;
 }
+#runButton {
+  background-color: rgba(241, 90, 34, 1);
+  color: white;
+}
+#runButton:hover {
+  background-color: rgba(182, 243, 232, 1);
+  color: black;
+  cursor: pointer;
+}
+#runButton:disabled {
+  background-color: rgba(242, 242, 242, 1);
+  color: white;
+  cursor: not-allowed;
+}
