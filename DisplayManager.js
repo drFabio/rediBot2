@@ -28,15 +28,16 @@ function DisplayManager({
   let initialDisplay;
   let tilesGroup;
   let stopButton;
+  let yStartPoint;
   init();
   function setupBoxes(numOfBoxes) {
     tilesGroup = document.createElementNS(XML_NS, "g");
     tilesGroup.setAttribute("data-context", "tilesGroup");
     display.appendChild(tilesGroup);
-    const y = parseInt(rectTemplate.getAttribute("y"), 10);
+    yStartPoint = parseInt(rectTemplate.getAttribute("y"), 10);
     for (let i = 0; i < numOfBoxes; i++) {
       const newRect = rectTemplate.cloneNode(true);
-      newRect.setAttribute("y", boxSize * i + y);
+      newRect.setAttribute("y", boxSize * i + yStartPoint);
       const rectTextGroup = document.createElementNS(XML_NS, "g");
       rectTextGroup.setAttribute("data-index", i);
       rectTextGroup.setAttribute("data-context", "rectTextGroup");
@@ -46,7 +47,7 @@ function DisplayManager({
       text.innerHTML = i + 1;
       text.setAttribute("font-size", 40);
       text.setAttribute("x", 10);
-      text.setAttribute("y", boxSize * i + y + boxSize - 10);
+      text.setAttribute("y", boxSize * i + yStartPoint + boxSize - 10);
       rectTextGroup.appendChild(text);
       tilesGroup.appendChild(rectTextGroup);
     }
@@ -83,7 +84,9 @@ function DisplayManager({
     rediBot.setAttribute("x", (boxSize - botDimensions.width) / 2);
     rediBot.setAttribute(
       "y",
-      zeroIndexedPosition * boxSize + (boxSize - botDimensions.height) / 2
+      yStartPoint +
+        zeroIndexedPosition * boxSize +
+        (boxSize - botDimensions.height) / 2
     );
   }
   this.extinguishFlame = position => {
@@ -96,7 +99,8 @@ function DisplayManager({
   function addFlame(position) {
     const flame = flameTemplate.cloneNode(true);
     const x = boxSize - flameDimensions.width;
-    const y = position * boxSize + boxSize - flameDimensions.height;
+    const y =
+      yStartPoint + position * boxSize + boxSize - flameDimensions.height;
     flame.setAttribute("x", x);
     flame.setAttribute("y", y);
     flame.setAttribute("data-context", "flame");

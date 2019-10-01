@@ -130,7 +130,7 @@ function BotManager(workspace) {
 
     function initIntepreter(interpreter, scope) {
       function moveForward() {
-        stepTimer = 500;
+        stepTimer = Math.max(500, stepTimer);
 
         console.log("ON MOVE FORWARD", {
           tileOnFire,
@@ -157,7 +157,7 @@ function BotManager(workspace) {
         });
       }
       function extinguishFire() {
-        stepTimer = 1100;
+        stepTimer = Math.max(300, stepTimer);
         console.log("ON EXTINGUISH FIRE", {
           tileOnFire,
           tileAhead,
@@ -246,7 +246,10 @@ function BotManager(workspace) {
           nextStep();
           return;
         }
-        window.setTimeout(nextStep, stepTimer);
+        const currentTimer = stepTimer;
+        stepTimer = DEFAULT_STEP_TIMER;
+        // unfortunately since the blocks can be more than one code is hard to control the speed
+        window.setTimeout(nextStep, currentTimer);
       };
       nextStep();
     } catch (err) {
