@@ -16,4 +16,10 @@ function StorageManager() {
     }
     return levelData[level] || null;
   };
+  this.setCurrentLevel = level => {
+    localStorage.setItem("currentLevel", level);
+  };
+  this.getCurrentLevel = () => {
+    return localStorage.getItem("currentLevel") || 0;
+  };
 }

@@ -112,6 +112,7 @@ function BotManager(blocklyManager) {
     alert(message);
   }
   function onLevelSelected(newLevelIndex) {
+    storageManager.setCurrentLevel(newLevelIndex);
     const codeText = storageManager.getLevelCode(newLevelIndex);
     if (codeText) {
       blocklyManager.setCodeFromText(codeText);
@@ -290,6 +291,7 @@ function BotManager(blocklyManager) {
   }
   function init() {
     storageManager = new StorageManager();
+    currentLevelIndex = storageManager.getCurrentLevel();
     onLevelSelected(currentLevelIndex);
     displayManager = new DisplayManager({
       levelIndex: currentLevelIndex,
