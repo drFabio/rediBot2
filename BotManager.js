@@ -1,12 +1,13 @@
 /**
  * Class that handles the "business logic"  of the bot and levels
- * @param {*} workspace
  */
-function BotManager(workspace) {
+function BotManager(blocklyManager) {
+  const workspace = blocklyManager.getWorkspace();
   const DEFAULT_STEP_TIMER = 150;
   let currentCode = "";
   let outputContainer = null;
   let displayManager = null;
+  let storageManager = null;
   let runButton = null;
   let currentLevelIndex = 0;
   const MAX_TILES = 20;
@@ -111,9 +112,17 @@ function BotManager(workspace) {
     alert(message);
   }
   function onLevelSelected(newLevelIndex) {
+    const codeText = storageManager.getLevelCode(newLevelIndex);
+    if (codeText) {
+      blocklyManager.setCodeFromText(codeText);
+    }
     currentLevelIndex = newLevelIndex;
   }
   function runCode() {
+    const codeAsText = blocklyManager.getCurrentCodeAsText();
+    if (codeAsText) {
+      storageManager.saveLevelCode(currentLevelIndex, codeAsText);
+    }
     const currentLevel = levelInfo[currentLevelIndex];
     const runData = getRunData(currentLevel);
     onStartIntepreting(runData);
@@ -280,6 +289,8 @@ function BotManager(workspace) {
     }
   }
   function init() {
+    storageManager = new StorageManager();
+    onLevelSelected(currentLevelIndex);
     displayManager = new DisplayManager({
       levelIndex: currentLevelIndex,
       onLevelSelected,

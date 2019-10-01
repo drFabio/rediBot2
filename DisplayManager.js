@@ -119,7 +119,7 @@ function DisplayManager({
     initFlameTemplate();
     fires.forEach(addFlame);
   }
-  function onLevelSelect(index) {
+  function onLevelSelect(index, isClick = true) {
     const target = levelMenuContainer.querySelector(`[data-index="${index}"]`);
     levelMenuContainer.querySelectorAll(".current").forEach(el => {
       el.classList.remove("current");
@@ -127,7 +127,9 @@ function DisplayManager({
     target.classList.add("current");
     currentLevel = levelInfo[index];
     document.title = `Redibot Level ${index + 1} `;
-    onLevelSelected(index);
+    if (isClick) {
+      onLevelSelected(index);
+    }
     setupDescription();
     showGameRules();
   }
@@ -141,7 +143,7 @@ function DisplayManager({
       li.innerHTML = i + 1;
       levelMenuContainer.appendChild(li);
     }
-    onLevelSelect(levelIndex);
+    onLevelSelect(levelIndex, false);
   }
   function setupDescription() {
     document.querySelector("#levelDescription").innerHTML =

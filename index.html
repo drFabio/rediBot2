@@ -107,6 +107,7 @@
     <script src="./JS-Interpreter/acorn_interpreter.js"></script>
     <script src="./levelInfo.js"></script>
     <script src="./DisplayManager.js"></script>
+    <script src="./StorageManager.js"></script>
     <script src="./BotManager.js"></script>
     <script src="./BlocklyManager.js"></script>
 
@@ -198,7 +199,7 @@
           return [code, Blockly.JavaScript.ORDER_NONE];
         };
         const blocklyManager = new BlocklyManager();
-        const botManager = new BotManager(blocklyManager.getWorkspace());
+        const botManager = new BotManager(blocklyManager);
         console.log("All assets are loaded");
       });
     </script>
