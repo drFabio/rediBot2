@@ -15,7 +15,7 @@ const levelInfo = [
   },
   {
     description:
-      "Reach tile #4. Extinguish the fires wherever you find them. Use no more than 5 lines of code.",
+      "Reach tile #4. Extinguish the fires wherever you find them. Use  as little code as possible.",
     numberOfTiles: 4,
     dynamicFires: true,
     maxBlocks: 5
@@ -28,7 +28,7 @@ const levelInfo = [
   },
   {
     description:
-      "Reach the last tile. Extinguish the fires wherever you find them. Stop moving forward when RediBot runs out of water.",
+      "Extinguish the fires wherever you find them. Stop moving forward when RediBot runs out of water.",
     dynamicTiles: true,
     dynamicFires: true,
     unlimitedFires: true,
