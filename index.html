@@ -7,18 +7,18 @@
     <xml id="toolbox" style="display: none">
       <block type="controls_repeat_ext"></block>
       <block type="controls_if"></block>
-      <block type="redi_var_tileOnFire"></block>
-
-      <block type="math_number"></block>
-      <block type="redi_var_tileAhead"></block>
-      <block type="redi_var_waterSupply"></block>
-      <block type="redi_moveForward"></block>
-      <block type="redi_extinguishFire"></block>
-      <block type="logic_compare">
-        <field name="OP">EQ</field>
-      </block>
       <block type="controls_whileUntil">
         <field name="MODE">WHILE</field>
+      </block>
+      <block type="redi_moveForward"></block>
+      <block type="redi_extinguishFire"></block>
+      <block type="text_print"></block>
+      <block type="redi_var_tileOnFire"></block>
+      <block type="redi_var_tileAhead"></block>
+      <block type="redi_var_waterSupply"></block>
+      <block type="math_number"></block>
+      <block type="logic_compare">
+        <field name="OP">EQ</field>
       </block>
       <block type="logic_negate"></block>
       <block type="logic_operation"></block>
@@ -138,91 +138,6 @@
 
     <script>
       window.addEventListener("load", function() {
-        let currentCode = null;
-
-        Blockly.Blocks["redi_var_tileOnFire"] = {
-          init: function() {
-            this.jsonInit({
-              type: "redi_var_tileOnFire",
-              message0: "tileOnFire",
-              output: "Boolean",
-              colour: 230,
-              tooltip: "Whether or not the tile is on fire",
-              helpUrl: ""
-            });
-          }
-        };
-        Blockly.JavaScript["redi_var_tileOnFire"] = function(block) {
-          const code = `tileOnFire`;
-          return [code, Blockly.JavaScript.ORDER_NONE];
-        };
-        Blockly.Blocks["redi_moveForward"] = {
-          init: function() {
-            this.jsonInit({
-              type: "block_type",
-              message0: "move forward",
-              previousStatement: null,
-              nextStatement: null,
-              colour: 230,
-              tooltip: "",
-              helpUrl: ""
-            });
-          }
-        };
-        Blockly.JavaScript["redi_moveForward"] = function(block) {
-          return "moveForward();\n";
-        };
-        Blockly.Blocks["redi_extinguishFire"] = {
-          init: function() {
-            this.appendDummyInput().appendField("Extinguish fire");
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour(230);
-            this.setTooltip(
-              "Make the rediBot extinguish a fire if there is water available, decrease water"
-            );
-            this.setHelpUrl("");
-          }
-        };
-        Blockly.JavaScript["redi_extinguishFire"] = function(block) {
-          return "extinguishFire();\n";
-        };
-        Blockly.Blocks["redi_var_tileAhead"] = {
-          init: function() {
-            this.jsonInit({
-              type: "redi_var_tileAhead",
-              message0: "tileAhead",
-              output: "Boolean",
-              colour: 230,
-              tooltip: "Whether or not there is a tile ahead",
-              helpUrl: ""
-            });
-          }
-        };
-        Blockly.JavaScript["redi_var_tileAhead"] = function(block) {
-          // TODO: Assemble JavaScript into code variable.
-          var code = "tileAhead";
-          // TODO: Change ORDER_NONE to the correct strength.
-          return [code, Blockly.JavaScript.ORDER_NONE];
-        };
-        Blockly.Blocks["redi_var_waterSupply"] = {
-          init: function() {
-            this.jsonInit({
-              type: "redi_var_watersupply",
-              message0: "waterSupply",
-              output: "Number",
-              colour: 230,
-              tooltip: "Volume of water remaining",
-              helpUrl: ""
-            });
-          }
-        };
-        Blockly.JavaScript["redi_var_waterSupply"] = function(block) {
-          // TODO: Assemble JavaScript into code variable.
-          var code = "waterSupply";
-          // TODO: Change ORDER_NONE to the correct strength.
-          return [code, Blockly.JavaScript.ORDER_NONE];
-        };
         const blocklyManager = new BlocklyManager();
         const botManager = new BotManager(blocklyManager);
         console.log("All assets are loaded");

@@ -11,7 +11,7 @@ function BotManager(blocklyManager) {
   let uiManager = null;
   let runButton = null;
   let currentLevelIndex = 0;
-  const MAX_TILES = 20;
+  const MAX_TILES = 10;
   const MIN_TILES = 3;
   const INITIAL_WATER_SUPPLY = 2;
   let forceStop = false;
@@ -153,6 +153,7 @@ function BotManager(blocklyManager) {
     function initIntepreter(interpreter, scope) {
       function setState(newState = {}) {
         const oldState = { tileAhead, tileOnFire, waterSupply };
+        console.log(`INITING INTERPRETER ${JSON.stringify({ oldState })}`);
         const currentState = { ...oldState, ...newState };
         ({ tileAhead, tileOnFire, waterSupply } = currentState);
         // if we don't pass this to the intepreter back the value will not be evaluated
