@@ -34,71 +34,95 @@
   </head>
 
   <body>
-    <div id="wrapper">
-      <nav id="header">
-        <a href="https://www.redi-school.org/redimunich" target="_blank"
-          ><img src="./rediLogo.webp" alt="Redi school logo"
-        /></a>
-      </nav>
-      <ul id="levelSelector"></ul>
-      <div id="blocklyArea">
-        <div id="blocklyDiv"></div>
-      </div>
-      <div id="controlContainer">
-        <button id="runButton">Run</button>
-        <button id="stopButton">Stop</button>
-      </div>
-      <div id="visualContainer">
-        <div id="rulesContainer">
-          <div id="levelDescription"></div>
+    <div id="outerWrapper">
+      <div id="overlay">
+        <div id="alertContainer">
+          <h3 class="alertTitle"></h3>
+          <div class="alertMessage"></div>
+          <div class="closeButton">X</div>
         </div>
-        <svg
-          viewBox="0 0 500 500"
-          width="100%"
-          height="100%"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="xMinYMin slice"
-          class="botDisplay"
-        >
-          <g id="hud">
-            <text font-size="15" y="35" x="350" data-context="waterSupply">
-              Water Supply
-            </text>
-            <text font-size="15" y="35" x="450" data-context="waterSupplyValue">
-              ?
-            </text>
-            <text font-size="15" y="55" x="350" data-context="tileAhead">
-              Tile Ahead
-            </text>
-            <text font-size="15" y="55" x="450" data-context="tileAheadValue">
-              ?
-            </text>
-            <text font-size="15" y="75" x="350" data-context="tileOnFire">
-              Tile on Fire
-            </text>
-            <text font-size="15" y="75" x="450" data-context="tileOnFireValue">
-              ?
-            </text>
-          </g>
-          <defs class="svgTemplates">
-            <rect
-              x="0"
-              y="100"
-              width="100"
-              height="100"
-              style="fill:white;stroke:black;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9"
-            />
-            <image height="80" xlink:href="./bot.png" data-context="rediBot" />
-            <image
-              height="45"
-              xlink:href="./fire.png"
-              data-context="flame"
-              class="flame"
-            />
-          </defs>
-        </svg>
+      </div>
+      <div id="wrapper">
+        <nav id="header">
+          <a href="https://www.redi-school.org/redimunich" target="_blank"
+            ><img src="./rediLogo.webp" alt="Redi school logo"
+          /></a>
+        </nav>
+        <ul id="levelSelector"></ul>
+        <div id="blocklyArea">
+          <div id="blocklyDiv"></div>
+        </div>
+        <div id="controlContainer">
+          <button id="runButton">Run</button>
+          <button id="stopButton">Stop</button>
+        </div>
+        <div id="visualContainer">
+          <div id="rulesContainer">
+            <div id="levelDescription"></div>
+          </div>
+          <svg
+            viewBox="0 0 500 500"
+            width="100%"
+            height="100%"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMinYMin slice"
+            class="botDisplay"
+          >
+            <g id="hud">
+              <text font-size="15" y="35" x="350" data-context="waterSupply">
+                Water Supply
+              </text>
+              <text
+                font-size="15"
+                y="35"
+                x="450"
+                data-context="waterSupplyValue"
+              >
+                ?
+              </text>
+              <text font-size="15" y="55" x="350" data-context="tileAhead">
+                Tile Ahead
+              </text>
+              <text font-size="15" y="55" x="450" data-context="tileAheadValue">
+                ?
+              </text>
+              <text font-size="15" y="75" x="350" data-context="tileOnFire">
+                Tile on Fire
+              </text>
+              <text
+                font-size="15"
+                y="75"
+                x="450"
+                data-context="tileOnFireValue"
+              >
+                ?
+              </text>
+            </g>
+            <defs class="svgTemplates">
+              <rect
+                x="0"
+                y="100"
+                width="100"
+                height="100"
+                style="fill:white;stroke:black;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9"
+              />
+              <image
+                height="80"
+                xlink:href="./bot.png"
+                data-context="rediBot"
+              />
+              <image
+                height="45"
+                xlink:href="./fire.png"
+                data-context="flame"
+                class="flame"
+              />
+            </defs>
+          </svg>
+        </div>
       </div>
     </div>
+
     <textarea name="" id="output" cols="30" rows="10"></textarea>
     <script src="./blockly/blockly_compressed.js"></script>
     <script src="./blockly/javascript_compressed.js"></script>
@@ -107,6 +131,7 @@
     <script src="./JS-Interpreter/acorn_interpreter.js"></script>
     <script src="./levelInfo.js"></script>
     <script src="./DisplayManager.js"></script>
+    <script src="./UIManager.js"></script>
     <script src="./StorageManager.js"></script>
     <script src="./BotManager.js"></script>
     <script src="./BlocklyManager.js"></script>

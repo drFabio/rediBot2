@@ -8,12 +8,14 @@ function BotManager(blocklyManager) {
   let outputContainer = null;
   let displayManager = null;
   let storageManager = null;
+  let uiManager = null;
   let runButton = null;
   let currentLevelIndex = 0;
   const MAX_TILES = 20;
   const MIN_TILES = 3;
   const INITIAL_WATER_SUPPLY = 2;
   let forceStop = false;
+  function handleAlertDismiss() {}
   function ExtinguishWithoutWaterError() {
     this.message = "Tried to extinguish a flame without water";
   }
@@ -83,6 +85,7 @@ function BotManager(blocklyManager) {
       currentPosition,
       numberOfTiles,
       failed,
+      message,
       stopped
     } = finalRunData;
     runButton.disabled = false;
@@ -92,14 +95,14 @@ function BotManager(blocklyManager) {
     const errorMessage = "You did not passed this level";
     const successMessage = "You passed this level";
     let passed = false;
-    let message = errorMessage;
+    let displayMessage = message || errorMessage;
     if (currentLevel.hasOwnProperty("checkSuccess")) {
       const levelPassData = currentLevel.checkSuccess(finalRunData);
       passed = levelPassData.passed;
       if (levelPassData.message) {
-        message = levelPassData.message;
+        displayMessage = levelPassData.message;
       } else if (passed) {
-        message = successMessage;
+        displayMessage = message || successMessage;
       }
     } else if (
       !failed &&
@@ -107,13 +110,15 @@ function BotManager(blocklyManager) {
       currentPosition === numberOfTiles - 1
     ) {
       passed = true;
-      message = successMessage;
+      displayMessage = message || successMessage;
     }
     if (passed) {
       displayManager.setLevelAsPassed(currentLevelIndex);
       storageManager.setPassedLevel(currentLevelIndex);
+      uiManager.onSuccess(displayMessage);
+    } else {
+      uiManager.onFailure(displayMessage);
     }
-    alert(message);
   }
   function onLevelSelected(newLevelIndex) {
     storageManager.setCurrentLevel(newLevelIndex);
@@ -239,8 +244,10 @@ function BotManager(blocklyManager) {
           return;
         }
         if (runTimeException) {
-          alert(runTimeException.message);
-          onStopIntepreting({ failed: true }, currentLevel);
+          onStopIntepreting(
+            { failed: true, message: runTimeException.message },
+            currentLevel
+          );
           return;
         }
         stepCount++;
@@ -295,6 +302,9 @@ function BotManager(blocklyManager) {
   }
   function init() {
     storageManager = new StorageManager();
+    uiManager = new UIManager({
+      onDismiss: handleAlertDismiss
+    });
     currentLevelIndex = storageManager.getCurrentLevel();
     const passedLevels = storageManager.getPassedLevels();
 

@@ -142,3 +142,58 @@ button {
 .levelItem.passed:before {
   content: "\2713 ";
 }
+#overlay {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+#outerWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+#alertContainer {
+  position: relative;
+  width: 60%;
+  min-height: 20vh;
+  border-radius: 1rem;
+  z-index: 101;
+  background-color: white;
+  padding: 1.5rem;
+  cursor: default;
+}
+#alertContainer .alertTitle {
+  font-size: 3rem;
+  margin-top: 0;
+}
+#alertContainer .alertMessage {
+  font-size: 1.5rem;
+}
+#alertContainer .alertTitle.success {
+  color: #558b2f;
+}
+#alertContainer .alertTitle.failure {
+  color: #e65100;
+}
+#alertContainer .closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 3rem;
+  color: black;
+  font-weight: bolder;
+}
+#alertContainer .closeButton:hover {
+  cursor: pointer;
+}
