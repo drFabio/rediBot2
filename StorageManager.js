@@ -35,6 +35,15 @@ function StorageManager() {
     passedData[level] = true;
     localStorage.setItem(PASSED_KEY, JSON.stringify(passedData));
   };
+  this.unsetPassedLevel = level => {
+    const savedPassedData = localStorage.getItem(PASSED_KEY);
+    let passedData = {};
+    if (savedPassedData) {
+      passedData = JSON.parse(savedPassedData);
+    }
+    delete passedData[level];
+    localStorage.setItem(PASSED_KEY, JSON.stringify(passedData));
+  };
   this.getPassedLevels = () => {
     const savedPassedData = localStorage.getItem(PASSED_KEY);
     if (!savedPassedData) {

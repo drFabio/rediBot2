@@ -204,4 +204,10 @@ function DisplayManager({
     );
     levelItem.classList.add("passed");
   };
+  this.unsetLevelAsPassed = level => {
+    const levelItem = levelMenuContainer.querySelector(
+      `.levelItem[data-index="${level}"]`
+    );
+    levelItem.classList.remove("passed");
+  };
 }

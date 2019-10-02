@@ -117,6 +117,9 @@ function BotManager(blocklyManager) {
       storageManager.setPassedLevel(currentLevelIndex);
       uiManager.onSuccess(displayMessage);
     } else {
+      displayManager.unsetLevelAsPassed(currentLevelIndex);
+      storageManager.unsetPassedLevel(currentLevelIndex);
+
       uiManager.onFailure(displayMessage);
     }
   }
