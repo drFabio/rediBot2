@@ -1,4 +1,4 @@
-function UIManager({ onDismiss }) {
+function UIManager({ onDismiss, delay = 600 }) {
   let overlayContainer = null;
   let alertMessageContainer = null;
   let alertTitleContainer = null;
@@ -25,7 +25,9 @@ function UIManager({ onDismiss }) {
     onDismiss();
   }
   function show() {
-    overlayContainer.style.display = "flex";
+    setTimeout(() => {
+      overlayContainer.style.display = "flex";
+    }, delay);
   }
   function hide() {
     overlayContainer.style.display = "none";
