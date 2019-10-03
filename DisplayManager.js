@@ -165,7 +165,6 @@ function DisplayManager({
     boxSize = parseInt(rectTemplate.getAttribute("width"), 10);
     stopButton.addEventListener("click", onStop);
     initLevelMenu();
-    initFlameTemplate();
   }
   this.moveBot = newPosition => {
     const newY = newPosition * boxSize * -1;
