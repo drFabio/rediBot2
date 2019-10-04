@@ -11,7 +11,7 @@ function BlocklyManager() {
           type: "variable_blocks",
           message0: "tileOnFire",
           output: "Boolean",
-          colour: "40",
+          // colour: 0,
           tooltip: "Whether or not the tile is on fire",
           helpUrl: ""
         });
@@ -29,7 +29,7 @@ function BlocklyManager() {
           previousStatement: null,
           nextStatement: null,
           colour: 290,
-          tooltip: "",
+          tooltip: "Makes the bot move forward",
           helpUrl: ""
         });
       }
@@ -60,7 +60,7 @@ function BlocklyManager() {
           type: "variable_blocks",
           message0: "tileAhead",
           output: "Boolean",
-          colour: "40",
+          // colour: 0,
           tooltip: "Whether or not there is a tile ahead",
           helpUrl: ""
         });
@@ -78,8 +78,8 @@ function BlocklyManager() {
           type: "variable_blocks",
           message0: "waterSupply",
           output: "Number",
-          colour: "40",
-          tooltip: "Volume of water remaining",
+          colour: "230",
+          tooltip: "Number of water to put out fires remaining",
           helpUrl: ""
         });
       }
