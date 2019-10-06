@@ -33,6 +33,7 @@ const levelInfo = [
     dynamicFires: true,
     unlimitedFires: true,
     checkSuccess(finalRunData) {
+      console.log(`Checking success ${JSON.stringify({ finalRunData })}`);
       const {
         fires,
         waterSupply,

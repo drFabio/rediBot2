@@ -286,13 +286,6 @@ function BotManager(blocklyManager) {
     }
   }
   function onWorspaceUpdate(event) {
-    console.log(event);
-    if (!event.recordUndo) {
-      return false;
-    }
-    if (event.type !== "move" && event.type !== "delete") {
-      return false;
-    }
     try {
       currentCode = Blockly.JavaScript.workspaceToCode(workspace);
       outputContainer.value = currentCode;
