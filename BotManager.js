@@ -9,12 +9,13 @@ function BotManager(blocklyManager) {
   let displayManager = null;
   let storageManager = null;
   let uiManager = null;
-  let runButton = null;
   let currentLevelIndex = 0;
+  let stepping = false;
   const MAX_TILES = 10;
   const MIN_TILES = 3;
   const INITIAL_WATER_SUPPLY = 2;
   let forceStop = false;
+  let onStepClick = null;
   function handleAlertDismiss() {}
   function ExtinguishWithoutWaterError() {
     this.message = "Tried to extinguish a flame without water";
@@ -33,6 +34,13 @@ function BotManager(blocklyManager) {
   WalkedOutsideOfTheBoundariesError.prototype.code = "OUTSIDE_OF_PATH";
   function handleStopClick() {
     forceStop = true;
+  }
+  function handleStepClick() {
+    if (!stepping) {
+      stepping = true;
+      onStepClick = runCode();
+    }
+    onStepClick();
   }
   function randomInRange(max, min) {
     return Math.floor(Math.random() * (max - min) + min);
@@ -73,7 +81,6 @@ function BotManager(blocklyManager) {
     return currentRunData;
   }
   function onStartIntepreting(currentRunData) {
-    runButton.disabled = true;
     forceStop = false;
     displayManager.runLevel(currentRunData);
   }
@@ -88,13 +95,14 @@ function BotManager(blocklyManager) {
       message,
       stopped
     } = finalRunData;
-    runButton.disabled = false;
     if (stopped) {
       return;
     }
     const errorMessage = "You did not passed this level";
     const successMessage = "You passed this level";
     let passed = false;
+    stepping = false;
+    onStepClick = null;
     let displayMessage = message || errorMessage;
     if (currentLevel.hasOwnProperty("checkSuccess")) {
       const levelPassData = currentLevel.checkSuccess(finalRunData);
@@ -150,6 +158,7 @@ function BotManager(blocklyManager) {
     let runTimeException = null;
     let stepTimer = DEFAULT_STEP_TIMER;
 
+    let executedCommand = false;
     function initIntepreter(interpreter, scope) {
       function setState(newState = {}) {
         const oldState = { tileAhead, tileOnFire, waterSupply };
@@ -161,6 +170,9 @@ function BotManager(blocklyManager) {
         interpreter.setProperty(scope, "tileOnFire", tileOnFire);
         interpreter.setProperty(scope, "waterSupply", waterSupply);
         displayManager.setHud(currentState);
+        if (Object.keys(newState).length) {
+          executedCommand = true;
+        }
       }
       setState();
       function moveForward() {
@@ -277,9 +289,19 @@ function BotManager(blocklyManager) {
         }
         const currentTimer = stepTimer;
         stepTimer = DEFAULT_STEP_TIMER;
-        // unfortunately since the blocks can be more than one code is hard to control the speed
-        window.setTimeout(nextStep, currentTimer);
+        if (!stepping || !executedCommand) {
+          // unfortunately since the blocks can be more than one code is hard to control the speed
+          window.setTimeout(nextStep, currentTimer);
+        } else if (stepping) {
+          uiManager.onStepExecuted();
+        }
       };
+      if (stepping) {
+        return () => {
+          executedCommand = false;
+          nextStep();
+        };
+      }
       nextStep();
     } catch (err) {
       alert(err.message);
@@ -300,7 +322,10 @@ function BotManager(blocklyManager) {
   function init() {
     storageManager = new StorageManager();
     uiManager = new UIManager({
-      onDismiss: handleAlertDismiss
+      onRun: runCode,
+      onStop: handleStopClick,
+      onDismiss: handleAlertDismiss,
+      onStep: handleStepClick
     });
     currentLevelIndex = storageManager.getCurrentLevel();
     const passedLevels = storageManager.getPassedLevels();
@@ -309,13 +334,10 @@ function BotManager(blocklyManager) {
     displayManager = new DisplayManager({
       levelIndex: currentLevelIndex,
       onLevelSelected,
-      onStop: handleStopClick,
       passedLevels
     });
-    runButton = document.querySelector("#runButton");
     outputContainer = document.getElementById("output");
     workspace.addChangeListener(onWorspaceUpdate);
-    runButton.addEventListener("click", runCode);
   }
   init();
 }
