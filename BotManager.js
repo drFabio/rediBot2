@@ -34,6 +34,8 @@ function BotManager(blocklyManager) {
   WalkedOutsideOfTheBoundariesError.prototype.code = "OUTSIDE_OF_PATH";
   function handleStopClick() {
     forceStop = true;
+    stepping = false;
+    onStepClick = null;
   }
   function handleStepClick() {
     if (!stepping) {
