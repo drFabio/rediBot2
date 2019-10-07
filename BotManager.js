@@ -133,11 +133,16 @@ function BotManager(blocklyManager) {
   }
   function onLevelSelected(newLevelIndex) {
     storageManager.setCurrentLevel(newLevelIndex);
+    //TODO move level seelctor to ui manager
+    uiManager.onLevelSelected();
     const codeText = storageManager.getLevelCode(newLevelIndex);
     if (codeText) {
       blocklyManager.setCodeFromText(codeText);
     }
     currentLevelIndex = newLevelIndex;
+    stepping = false;
+    onStepClick = null;
+    handleStopClick();
   }
   function runCode() {
     const codeAsText = blocklyManager.getCurrentCodeAsText();

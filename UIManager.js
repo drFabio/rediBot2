@@ -83,4 +83,7 @@ function UIManager({ onDismiss, delay = 600, onRun, onStop, onStep }) {
   this.onStepExecuted = () => {
     stepButton.disabled = false;
   };
+  this.onLevelSelected = () => {
+    handleEndOfRun();
+  };
 }
